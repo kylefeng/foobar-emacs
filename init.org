@@ -1,76 +1,288 @@
-* Startup config
+* Startup Config
 ** Early init
 #+NAME: early-init
-#+BEGIN_SRC elisp :tangle ~/.emacs.d/early-init.el
-;; -*- lexical-binding: t; -*-
-(setq package-enable-at-startup nil)
+#+begin_src elisp :tangle ~/.emacs.d/early-init.el
+  ;; -*- lexical-binding: t; -*-
+  (setq package-enable-at-startup nil)
 
-(add-to-list 'load-path (expand-file-name "lib/borg" user-emacs-directory))
-(require 'borg)
-(borg-initialize)
+  ;; Adjust garbage collection thresholds during startup, and thereafter
+  (setq gc-cons-threshold (* 128 1024 1024))
+
+  ;; Process performance tuning
+  (setq read-process-output-max (* 4 1024 1024))
+  (setq process-adaptive-read-buffering nil)
+
+  (add-to-list 'load-path (expand-file-name "lib/borg" user-emacs-directory))
+  (require 'borg)
+  (setq borg-rewrite-urls-alist
+    '(("git@github.com:" . "https://github.com/")
+      ("git@gitlab.com:" . "https://gitlab.com/")))
+  (borg-initialize)
+
+  ;; 自定义 custom file
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load-file custom-file))
+#+end_src
 
 
-(defconst *is-mac* (eq system-type 'darwin))
-(defconst *is-linux* (eq system-type 'gnu/linux))
-(defconst *is-windows* (or (eq system-type 'ms-dos)
-			   (eq system-type 'windows-nt)))
+** Constants
+#+begin_src elisp :tangle yes 
+  ;; -*- lexical-binding: t; -*-  
+  (defconst *is-mac* (eq system-type 'darwin))
+  (defconst *is-linux* (eq system-type 'gnu/linux))
+  (defconst *is-windows* (or (eq system-type 'ms-dos)
+			     (eq system-type 'windows-nt)))
 
-(defconst *spell-check-support-enabled* nil)
-#+END_SRC
+  (defconst *spell-check-support-enabled* nil)
+#+end_src
+
 
 ** Basic config
-#+BEGIN_SRC elisp :tangle yes
-;; -*- lexical-binding: t; -*-
+#+begin_src elisp :tangle yes
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8)
 
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(setq default-buffer-file-coding-system 'utf-8)
+  (setq ring-bell-function 'ignore)
+  (setq inhibit-startup-screen t)
 
-(setq ring-bell-function 'ignore)
-(setq inhibit-startup-screen t)
+  ;; no file backup
+  (setq make-backup-files nil)
 
-;; no file backup
-(setq make-backup-files nil)
+  ;; 自动补全括号
+  (electric-pair-mode t)
 
-;; 自动补全括号
-(electric-pair-mode t)
+  ;; make ibuffer default
+  (defalias 'list-buffers 'ibuffer)
 
-;; make ibuffer default
-(defalias 'list-buffers 'ibuffer)
+  ;; 自动刷新 buffer
+  (global-auto-revert-mode t)
 
-;; 自动刷新 buffer
-(global-auto-revert-mode t)
+  ;; 选中文本后输入会替换文本
+  (delete-selection-mode t)
+#+end_src
 
-;; 选中文本后输入会替换文本
-(delete-selection-mode t)
-#+END_SRC
 
 ** Utils
-#+BEGIN_SRC elisp :tangle yes
-(defun mp-elisp-mode-eval-buffer ()
-  (interactive)
-  (message "Evaluated buffer")
-  (eval-buffer))
+#+begin_src elisp :tangle yes
+  (defun mp-elisp-mode-eval-buffer ()
+    (interactive)
+    (message "Evaluated buffer")
+    (eval-buffer))
 
-(define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
-(define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+  (define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
-#+END_SRC
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
 
 ** UI config
-#+BEGIN_SRC elisp :tangle yes
+#+begin_src elisp :tangle yes
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
 
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+  (set-frame-width (selected-frame) 180)
+  (set-frame-height (selected-frame) 60)
 
-(set-frame-width (selected-frame) 180)
-(set-frame-height (selected-frame) 60)
+  (global-display-line-numbers-mode t)
 
-(global-display-line-numbers-mode t)
+  (setq display-line-numbers-type 'relative)
 
-(setq display-line-numbers-type 'relative)
+  ;; turn on good-scroll
+  (good-scroll-mode 1)
 
-#+END_SRC
+  ;; all the icons
+  (when (display-graphic-p)
+    (require 'all-the-icons))
+
+  ;; ---------------- themes ----------------
+  (require 'modus-themes)
+  (load-theme 'modus-operandi :no-confirm)
+
+#+end_src
+
+
+* Keyboard Bindings
+
+** User defined KBD
+#+begin_src elisp :tangle yes
+  (when *is-mac*
+    (setq mac-command-modifier 'meta)
+    (setq mac-option-modifier 'none))
+
+  (defun next-ten-lines ()
+    "Move cursor to next 10 lines."
+    (interactive)
+    (forward-line 10))
+
+  (defun previous-ten-lines ()
+    "Move cursor to previous 10 lines."
+    (interactive)
+    (forward-line -10))
+
+  (global-set-key (kbd "M-w") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
+  (global-set-key (kbd "C-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
+  (global-set-key (kbd "M-n") 'next-ten-lines)
+  (global-set-key (kbd "M-p") 'previous-ten-lines)
+#+end_src
+
+
+* Evil Mode
+#+begin_src elisp :tangle yes
+  (require 'evil)
+  (require 'evil-surround)
+  (require 'evil-visualstar)
+
+  (evil-mode 1)
+  (global-evil-visualstar-mode 1)
+  (global-evil-surround-mode 1)
+
+  (with-eval-after-load 'evil-maps (define-key evil-motion-state-map (kbd "TAB") nil))
+
+  (setq evil-want-C-i-jump nil)
+
+  (evil-set-undo-system 'undo-redo)
+
+  ;; Store more undo history to prevent loss of data
+  (setq undo-limit 8000000
+        undo-strong-limit 8000000
+        undo-outer-limit 8000000)
+
+  ;; {{ @see https://github.com/timcharper/evil-surround for tutorial
+  (run-with-idle-timer 2 nil #'global-evil-surround-mode)
+  (with-eval-after-load 'evil-surround
+  (defun evil-surround-prog-mode-hook-setup ()
+    "Set up surround shortcuts."
+    (cond
+     ((memq major-mode '(sh-mode))
+      (push '(?$ . ("$(" . ")")) evil-surround-pairs-alist))
+     (t
+      (push '(?$ . ("${" . "}")) evil-surround-pairs-alist)))
+
+    (when (memq major-mode '(org-mode))
+      (push '(?\[ . ("[[" . "]]")) evil-surround-pairs-alist)
+      (push '(?= . ("=" . "=")) evil-surround-pairs-alist))
+
+    (when (memq major-mode '(emacs-lisp-mode))
+      (push '(?\( . ("( " . ")")) evil-surround-pairs-alist)
+      (push '(?` . ("`" . "'")) evil-surround-pairs-alist))
+
+    (when (or (derived-mode-p 'js-mode)
+              (memq major-mode '(typescript-mode web-mode)))
+      (push '(?j . ("JSON.stringify(" . ")")) evil-surround-pairs-alist)
+      (push '(?> . ("(e) => " . "(e)")) evil-surround-pairs-alist))
+
+      ;; generic
+      (push '(?/ . ("/" . "/")) evil-surround-pairs-alist))
+    (add-hook 'prog-mode-hook 'evil-surround-prog-mode-hook-setup))
+  ;; }}
+
+  ;; {{ For example, press `viW*`
+  (setq evil-visualstar/persistent t)
+  (run-with-idle-timer 2 nil #'global-evil-visualstar-mode)
+  ;; }}
+#+end_src
+
+
+* Enhancement
+** General
+#+begin_src elisp :tangle yes
+  ;; which-key
+  (require 'which-key)
+  (which-key-mode)
+
+  ;; fly-check
+  (require 'flycheck)
+  (setq truncate-lines nil)
+  (add-hook 'prog-mode 'flycheck-mode)
+
+  ;; ace-window
+  (require 'ace-window)
+  (global-key-binding (kbd "M-o") 'ace-window)
+
+  ;; amx
+  (require 'amx)
+  (amx-mode)
+
+  ;; mwim
+  (require 'mwim)
+  (global-key-binding (kbd "C-a") 'mwim-beginning-of-code-or-line)
+  (global-key-binding (kbd "C-e") 'mwim-end-of-code-or-line)
+
+  ;; exec-path-from-shell
+  (require 'exec-path-from-shell)
+  (if (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize))
+
+  ;; keycast
+  (require 'keycast)
+  (keycast-mode-line-mode t)
+#+end_src
+
+** Hydra
+
+
+** Ivy Mode
+*** ivy
+#+begin_src elisp :tangle yes
+  (require 'ivy)
+  (ivy-mode)
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-initial-inputs-alist nil)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (setq search-default-mode #'char-fold-to-regexp)
+
+  ;; ivy KBD
+  (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+  (global-set-key (kbd "C-c v") 'ivy-push-view)
+  (global-set-key (kbd "C-c s") 'ivy-switch-view)
+  (global-set-key (kbd "C-c V") 'ivy-pop-view)
+#+end_src
+
+*** counsel
+#+begin_src elisp :tangle yes
+  ;; counsel KBD
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-SPC") 'counsel-mark-ring)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "C-c f") 'counsel-recentf)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+#+end_src
+
+*** swiper
+#+begin_src elisp :tangle yes
+  (setq swiper-action-recentf t)
+  (setq swiper-include-line-number-in-search t)
+
+  ;; swiper KBD
+  (global-set-key (kbd "C-s") 'swiper)
+  (global-set-key (kbd "C-r") 'swiper-isearch-backward)
+#+end_src
+
+
+** Company Mode
+*** company
+#+begin_src elisp :tangle yes
+  (require 'company)
+  (global-company-mode)
+  (setq company-minimum-prefix-length 1)
+  (setq company-selection-wrap-around t)
+  (setq company-show-quick-access t)
+  (setq company-backends '(company-capf company-files company-keywords))
+  (setq company-idle-delay 0.2)
+  (setq company-transformers '(company-sort-by-occurrence))
+#+end_src
+
+*** company-box
+#+begin_src elisp :tangle yes
+  (require 'company-box)
+  (add-hook 'company-mode-hook 'company-box-mode)
+#+end_src

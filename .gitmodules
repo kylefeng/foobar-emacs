@@ -1,19 +1,88 @@
+[submodule "ace-window"]
+	path = lib/ace-window
+	url = https://github.com/abo-abo/ace-window
+[submodule "all-the-icons"]
+	path = lib/all-the-icons
+	url = https://github.com/domtronn/all-the-icons.el
+[submodule "amx"]
+	path = lib/amx
+	url = https://github.com/DarwinAwardWinner/amx
+[submodule "avy"]
+	path = lib/avy
+	url = https://github.com/abo-abo/avy
 [submodule "borg"]
 	path = lib/borg
 	url = git@github.com:emacscollective/borg.git
-[submodule "epkg"]
-	path = lib/epkg
-	url = git@github.com:emacscollective/epkg.git
-[submodule "compat"]
-	path = lib/compat
-	url = git@github.com:emacs-compat/compat.git
-[submodule "llama"]
-	path = lib/llama
-	url = https://git.sr.ht/~tarsius/llama
 [submodule "closql"]
 	path = lib/closql
 	url = git@github.com:emacscollective/closql.git
+[submodule "company"]
+	path = lib/company
+	url = https://github.com/company-mode/company-mode
+[submodule "company-box"]
+	path = lib/company-box
+	url = https://github.com/sebastiencs/company-box
+[submodule "compat"]
+	path = lib/compat
+	url = git@github.com:emacs-compat/compat.git
+[submodule "dash"]
+	path = lib/dash
+	url = https://github.com/magnars/dash.el
 [submodule "emacsql"]
 	path = lib/emacsql
 	url = git@github.com:skeeto/emacsql.git
 	no-byte-compile = emacsql-pg.el
+[submodule "epkg"]
+	path = lib/epkg
+	url = git@github.com:emacscollective/epkg.git
+[submodule "evil"]
+	path = lib/evil
+	url = https://github.com/emacs-evil/evil
+[submodule "evil-surround"]
+	path = lib/evil-surround
+	url = https://github.com/emacs-evil/evil-surround
+[submodule "evil-visualstar"]
+	path = lib/evil-visualstar
+	url = https://github.com/bling/evil-visualstar
+[submodule "exec-path-from-shell"]
+	path = lib/exec-path-from-shell
+	url = https://github.com/purcell/exec-path-from-shell
+[submodule "flycheck"]
+	path = lib/flycheck
+	url = https://github.com/flycheck/flycheck
+[submodule "frame-local"]
+	path = lib/frame-local
+	url = https://github.com/sebastiencs/frame-local
+[submodule "good-scroll"]
+	path = lib/good-scroll
+	url = https://github.com/io12/good-scroll.el
+[submodule "hydra"]
+	path = lib/hydra
+	url = https://github.com/abo-abo/hydra
+[submodule "ivy"]
+	path = lib/ivy
+	url = https://github.com/abo-abo/swiper
+[submodule "keycast"]
+	path = lib/keycast
+	url = https://github.com/tarsius/keycast
+[submodule "llama"]
+	path = lib/llama
+	url = https://git.sr.ht/~tarsius/llama
+[submodule "magit"]
+	path = lib/magit
+	url = https://github.com/magit/magit
+[submodule "modus-themes"]
+	path = lib/modus-themes
+	url = https://github.com/protesilaos/modus-themes
+[submodule "mwim"]
+	path = lib/mwim
+	url = https://github.com/alezost/mwim.el
+[submodule "s"]
+	path = lib/s
+	url = https://github.com/magnars/s.el
+[submodule "which-key"]
+	path = lib/which-key
+	url = https://github.com/justbur/emacs-which-key
+[submodule "with-editor"]
+	path = lib/with-editor
+	url = https://github.com/magit/with-editor

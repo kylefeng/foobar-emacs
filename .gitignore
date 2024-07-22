@@ -1,6 +1,10 @@
 /auto-save-list/
 /epkgs/
+/transient/
 init.el
 init.elc
 early-init.el
 lib/compat/dir
+.#*
+\#*
+amx-items
