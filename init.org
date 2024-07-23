@@ -232,6 +232,18 @@
   (keycast-mode-line-mode t)
 #+end_src
 
+*** marginalia
+Adds marginalia to the minibuffer completions.
+
+#+begin_src elisp :tangle yes
+  (require 'marginalia)
+  (marginalia-mode)
+  (add-hook 'marginalia-mode-hook
+	    (lambda ()
+	      (keymap-set minibuffer-local-map
+			  "M-a" 'marginalia-cycle)))
+#+end_src
+
 ** Ivy Mode
 *** ivy
 #+begin_src elisp :tangle yes
@@ -298,6 +310,7 @@
   (global-undo-tree-mode 1)
   (setq undo-tree-auto-save-history nil)
 #+end_src
+
 
 * Hydra
 ** hydra-undo-tree

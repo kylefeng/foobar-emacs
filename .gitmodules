@@ -71,6 +71,9 @@
 [submodule "magit"]
 	path = lib/magit
 	url = https://github.com/magit/magit
+[submodule "marginalia"]
+	path = lib/marginalia
+	url = https://github.com/minad/marginalia
 [submodule "modus-themes"]
 	path = lib/modus-themes
 	url = https://github.com/protesilaos/modus-themes
