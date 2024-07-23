@@ -86,9 +86,6 @@
 [submodule "ivy"]
 	path = lib/ivy
 	url = https://github.com/abo-abo/swiper
-[submodule "keycast"]
-	path = lib/keycast
-	url = https://github.com/tarsius/keycast
 [submodule "llama"]
 	path = lib/llama
 	url = https://git.sr.ht/~tarsius/llama
@@ -143,9 +140,15 @@
 [submodule "rainbow-delimiters"]
 	path = lib/rainbow-delimiters
 	url = https://github.com/Fanael/rainbow-delimiters
+[submodule "rich-minority"]
+	path = lib/rich-minority
+	url = https://github.com/Malabarba/rich-minority
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
+[submodule "smart-mode-line"]
+	path = lib/smart-mode-line
+	url = https://github.com/Malabarba/smart-mode-line
 [submodule "spinner"]
 	path = lib/spinner
 	url = https://github.com/Malabarba/spinner.el
