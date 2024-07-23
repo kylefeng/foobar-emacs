@@ -259,6 +259,13 @@ Adds marginalia to the minibuffer completions.
 			  "M-a" 'marginalia-cycle)))
 #+end_src
 
+*** highlight-symbol
+#+begin_src elisp :tangle yes
+  (require 'highlight-symbol)
+  (highlight-symbol-mode 1)
+  (global-set-key (kbd "<f3>") 'highlight-symbol)
+#+end_src
+
 
 ** Ivy Mode
 *** ivy
@@ -336,6 +343,7 @@ Adds marginalia to the minibuffer completions.
 
   (global-set-key (kbd "C-S-<mouse-1>") 'mc/toggle-cursor-on-click)
 #+end_src
+
 
 * Hydra
 ** hydra-undo-tree

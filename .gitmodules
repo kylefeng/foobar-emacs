@@ -56,6 +56,9 @@
 [submodule "good-scroll"]
 	path = lib/good-scroll
 	url = https://github.com/io12/good-scroll.el
+[submodule "highlight-symbol"]
+	path = lib/highlight-symbol
+	url = https://github.com/nschum/highlight-symbol.el
 [submodule "hydra"]
 	path = lib/hydra
 	url = https://github.com/abo-abo/hydra
