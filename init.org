@@ -25,6 +25,7 @@
     (load-file custom-file))
 #+end_src
 
+
 ** Constants
 #+begin_src elisp :tangle yes 
   ;; -*- lexical-binding: t; -*-  
@@ -35,6 +36,7 @@
 
   (defconst *spell-check-support-enabled* nil)
 #+end_src
+
 
 ** Basic config
 #+begin_src elisp :tangle yes
@@ -63,6 +65,7 @@
   (delete-selection-mode t)
 #+end_src
 
+
 ** Utils
 #+begin_src elisp :tangle yes
   (defun mp-elisp-mode-eval-buffer ()
@@ -75,6 +78,7 @@
 
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
+
 
 ** UI config
 *** Basic UI
@@ -255,6 +259,7 @@ Adds marginalia to the minibuffer completions.
 			  "M-a" 'marginalia-cycle)))
 #+end_src
 
+
 ** Ivy Mode
 *** ivy
 #+begin_src elisp :tangle yes
@@ -296,6 +301,7 @@ Adds marginalia to the minibuffer completions.
   (global-set-key (kbd "C-r") 'swiper-isearch-backward)
 #+end_src
 
+
 ** Company Mode
 *** company
 #+begin_src elisp :tangle yes
@@ -315,6 +321,7 @@ Adds marginalia to the minibuffer completions.
   (add-hook 'company-mode-hook 'company-box-mode)
 #+end_src
 
+
 ** Undo Tree
 #+begin_src elisp :tangle yes
   (require 'undo-tree)
@@ -322,6 +329,13 @@ Adds marginalia to the minibuffer completions.
   (setq undo-tree-auto-save-history nil)
 #+end_src
 
+
+** Multiple Cursors
+#+begin_src elisp :tangle yes
+  (require 'multiple-cursors)
+
+  (global-set-key (kbd "C-S-<mouse-1>") 'mc/toggle-cursor-on-click)
+#+end_src
 
 * Hydra
 ** hydra-undo-tree
@@ -339,4 +353,34 @@ Adds marginalia to the minibuffer completions.
     ("q"  nil "quit" :color blue))
 
   (global-set-key (kbd "C-x C-h u") 'hydra-undo-tree/body)
+#+end_src
+
+** hydra-multiple-cursors
+#+begin_src elisp :tangle yes
+  (defhydra hydra-multiple-cursors (:hint nil)
+    "
+     Up^^          Down^^       Miscellaneous      % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
+    ------------------------------------------------------------------
+    [_p_]  Prev   [_n_]  Next   [_l_] Edit lines [_0_] Insert numbers
+    [_P_]  Skip   [_N_]  Skip   [_a_] Mark all   [_A_] Insert letters
+    [_M-p_] Unmark  [_M-n_] Unmark  [_s_] Search   [_q_] Quit
+    [_|_] Align with input CHAR    [Click] Cursor at point"
+    ("l" mc/edit-lines :exit t)
+    ("a" mc/mark-all-like-this :exit t)
+    ("n" mc/mark-next-like-this)
+    ("N" mc/skip-to-next-like-this)
+    ("M-n" mc/unmark-next-like-this)
+    ("p" mc/mark-previous-like-this)
+    ("P" mc/skip-to-previous-like-this)
+    ("M-p" mc/unmark-previous-like-this)
+    ("|" mc/vertical-align)
+    ("s" mc/mark-all-in-region-regexp :exit t)
+    ("0" mc/insert-numbers :exit t)
+    ("A" mc/insert-letters :exit t)
+    ("<mouse-1>" mc/add-cursor-on-click)
+    ;; Help with click recognition in this hydra
+    ("<down-mouse-1>" ignore)
+    ("<drag-mouse-1>" ignore)
+    ("q" nil))
+  (global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
 #+end_src
