@@ -98,6 +98,9 @@
 [submodule "lsp-mode"]
 	path = lib/lsp-mode
 	url = https://github.com/emacs-lsp/lsp-mode
+[submodule "lsp-pyright"]
+	path = lib/lsp-pyright
+	url = https://github.com/emacs-lsp/lsp-pyright
 [submodule "lsp-treemacs"]
 	path = lib/lsp-treemacs
 	url = https://github.com/emacs-lsp/lsp-treemacs
@@ -125,9 +128,15 @@
 [submodule "pfuture"]
 	path = lib/pfuture
 	url = https://github.com/Alexander-Miller/pfuture
+[submodule "poetry"]
+	path = lib/poetry
+	url = https://github.com/cybniv/poetry.el
 [submodule "projectile"]
 	path = lib/projectile
 	url = https://github.com/bbatsov/projectile
+[submodule "pyvenv"]
+	path = lib/pyvenv
+	url = https://github.com/jorgenschaefer/pyvenv
 [submodule "queue"]
 	path = lib/queue
 	url = https://github.com/emacsmirror/queue.git

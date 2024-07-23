@@ -571,6 +571,38 @@ Adds marginalia to the minibuffer completions.
 #+end_src
 
 
+** Python
+*** python-mode
+#+begin_src elisp :tangle yes
+  (require 'python)
+
+  (add-to-list 'auto-mode-alist
+               '("\\.py\\'" . python-mode))
+
+  (setq python-shell-interpreter "python3")
+#+end_src
+
+*** pyvenv
+#+begin_src elisp :tangle yes
+  (require 'pyvenv)
+
+  (add-hook 'python-mode-hook 'pyvenv-mode)
+#+end_src
+
+*** poetry
+#+begin_src elisp :tangle yes
+  (require 'poetry)
+#+end_src
+
+*** lsp-pyright
+#+begin_src elisp :tangle yes
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (require 'lsp-pyright)
+              (lsp-deferred)))
+#+end_src
+
+
 * Keyboard Bindings
 ** User defined KBD
 #+begin_src elisp :tangle yes
