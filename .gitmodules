@@ -59,6 +59,9 @@
 [submodule "frame-local"]
 	path = lib/frame-local
 	url = https://github.com/sebastiencs/frame-local
+[submodule "go-mode"]
+	path = lib/go-mode
+	url = https://github.com/dominikh/go-mode.el
 [submodule "good-scroll"]
 	path = lib/good-scroll
 	url = https://github.com/io12/good-scroll.el

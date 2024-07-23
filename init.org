@@ -273,7 +273,6 @@ Adds marginalia to the minibuffer completions.
 *** ivy
 #+begin_src elisp :tangle yes
   (require 'ivy)
-  (ivy-mode)
   (setq ivy-use-virtual-buffers t)
   (setq ivy-initial-inputs-alist nil)
   (setq ivy-count-format "(%d/%d) ")
@@ -286,6 +285,8 @@ Adds marginalia to the minibuffer completions.
   (global-set-key (kbd "C-c v") 'ivy-push-view)
   (global-set-key (kbd "C-c s") 'ivy-switch-view)
   (global-set-key (kbd "C-c V") 'ivy-pop-view)
+
+  (add-hook 'after-init-hook 'ivy-mode)
 #+end_src
 
 *** counsel
@@ -376,6 +377,7 @@ Adds marginalia to the minibuffer completions.
   (require 'yasnippet-snippets)
 #+end_src
 
+
 ** Project Management
 *** projectile
 #+begin_src elisp :tangle yes
@@ -393,6 +395,27 @@ Adds marginalia to the minibuffer completions.
   (counsel-projectile-mode)
 #+end_src
 
+*** treemacs
+#+begin_src elisp :tangle yes
+  (require 'treemacs)
+
+  ;; 配置 treemacs
+  (with-eval-after-load 'treemacs
+    (treemacs-tag-follow-mode))
+
+  ;; 全局快捷键绑定
+  (global-set-key (kbd "M-0")  #'treemacs-select-window)
+  (global-set-key (kbd "C-x t 1") #'treemacs-delete-other-window)
+  (global-set-key (kbd "C-x t t") #'treemacs)
+  (global-set-key (kbd "C-x t B") #'treemacs-bookmark)
+  (global-set-key (kbd "C-x t M-t") #'treemacs-find-tag)
+
+  ;; treemacs-mode-map 快捷键绑定
+  (with-eval-after-load 'treemacs
+    (define-key treemacs-mode-map (kbd "/") #'treemacs-advanced-helppfuturefel-hydra))
+#+end_src
+
+
 ** LSP
 *** lsp-mode
 #+begin_src elisp :tangle yes
@@ -400,9 +423,9 @@ Adds marginalia to the minibuffer completions.
   (require 'lsp-ui)
   (require 'lsp-ivy)
 
-  (autoload 'lsp "lsp-mode" "")
-  (autoload 'lsp-deferred "lsp-mode" "")
-  (autoload 'lsp-ui-mode "lsp-ui" "")
+  (autoload 'lsp "lsp-mode" "" t)
+  (autoload 'lsp-deferred "lsp-mode" "" t)
+  (autoload 'lsp-ui-mode "lsp-ui" "" t)
   (autoload 'lsp-ivy-workspace-symbol "lsp-ivy" "")
 
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
@@ -431,7 +454,21 @@ Adds marginalia to the minibuffer completions.
 #+end_src
 
 
+** Golang
+#+begin_src elisp :tangle yes
+  (require 'go-mode)
+  
+  (defun lsp-go-install-save-hooks ()
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t))
 
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+#+end_src
+
+
+** Haskell
+#+begin_src elisp :tangle yes
+#+end_src
 
 * Org Mode
 #+begin_src elisp :tangle yes
