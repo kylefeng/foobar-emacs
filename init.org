@@ -376,6 +376,22 @@ Adds marginalia to the minibuffer completions.
   (require 'yasnippet-snippets)
 #+end_src
 
+** Project Management
+*** projectile
+#+begin_src elisp :tangle yes
+  (require 'projectile)
+
+  (setq projectile-mode-line "Projectile")
+  (setq projectile-track-known-projects-automatically nil)
+
+  (global-set-key (kbd "C-c p") 'projectile-command-map)
+#+end_src
+
+*** counsel-projectile
+#+begin_src elisp :tangle yes
+  (require 'counsel-projectile)
+  (counsel-projectile-mode)
+#+end_src
 
 ** LSP
 *** lsp-mode
@@ -413,6 +429,9 @@ Adds marginalia to the minibuffer completions.
 
   (global-set-key (kbd "C-c l s") #'lsp-ivy-workspace-symbol)
 #+end_src
+
+
+
 
 * Org Mode
 #+begin_src elisp :tangle yes
@@ -524,11 +543,12 @@ Adds marginalia to the minibuffer completions.
     (interactive)
     (forward-line -10))
 
-  (global-set-key (kbd "M-w") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
-  (global-set-key (kbd "C-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
+  (global-set-key (kbd "M-W") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
+  (global-set-key (kbd "M-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
   (global-set-key (kbd "M-n") 'next-ten-lines)
   (global-set-key (kbd "M-p") 'previous-ten-lines)
 #+end_src
+
 
 * Hydra
 ** hydra-undo-tree
@@ -569,7 +589,7 @@ Adds marginalia to the minibuffer completions.
     ("|" mc/vertical-align)
     ("s" mc/mark-all-in-region-regexp :exit t)
     ("0" mc/insert-numbers :exit t)
-    ("A" mc/insert-letters :exit t)
+
     ("<mouse-1>" mc/add-cursor-on-click)
     ;; Help with click recognition in this hydra
     ("<down-mouse-1>" ignore)

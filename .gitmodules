@@ -25,6 +25,9 @@
 [submodule "compat"]
 	path = lib/compat
 	url = git@github.com:emacs-compat/compat.git
+[submodule "counsel-projectile"]
+	path = lib/counsel-projectile
+	url = https://github.com/ericdanan/counsel-projectile
 [submodule "dash"]
 	path = lib/dash
 	url = https://github.com/magnars/dash.el
@@ -104,6 +107,9 @@
 [submodule "mwim"]
 	path = lib/mwim
 	url = https://github.com/alezost/mwim.el
+[submodule "projectile"]
+	path = lib/projectile
+	url = https://github.com/bbatsov/projectile
 [submodule "queue"]
 	path = lib/queue
 	url = https://github.com/emacsmirror/queue.git
@@ -116,6 +122,9 @@
 [submodule "spinner"]
 	path = lib/spinner
 	url = https://github.com/Malabarba/spinner.el
+[submodule "treemacs"]
+	path = lib/treemacs
+	url = https://github.com/Alexander-Miller/treemacs
 [submodule "undo-tree"]
 	path = lib/undo-tree
 	url = https://gitlab.com/tsc25/undo-tree
