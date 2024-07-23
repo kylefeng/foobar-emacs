@@ -346,7 +346,8 @@ Adds marginalia to the minibuffer completions.
 
 
 * Programming
-** yasnippet
+** Yasnippet
+*** yasnippet
 #+begin_src elisp :tangle yes
   (require 'yasnippet)
 
@@ -368,6 +369,11 @@ Adds marginalia to the minibuffer completions.
 	      (define-key yas-minor-mode-map (kbd "<tab>") nil)
 	      (keymap-set yas-minor-mode-map "S-<tab>" 'yas-expand)))
 #+end_src
+*** yasnippet-snippets
+#+begin_src elisp :tangle yes
+  (require 'yasnippet-snippets)
+#+end_src
+
 
 * Hydra
 ** hydra-undo-tree
