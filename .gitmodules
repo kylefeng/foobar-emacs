@@ -86,6 +86,9 @@
 [submodule "lsp-mode"]
 	path = lib/lsp-mode
 	url = https://github.com/emacs-lsp/lsp-mode
+[submodule "lsp-treemacs"]
+	path = lib/lsp-treemacs
+	url = https://github.com/emacs-lsp/lsp-treemacs
 [submodule "lsp-ui"]
 	path = lib/lsp-ui
 	url = https://github.com/emacs-lsp/lsp-ui
@@ -107,6 +110,9 @@
 [submodule "mwim"]
 	path = lib/mwim
 	url = https://github.com/alezost/mwim.el
+[submodule "pfuture"]
+	path = lib/pfuture
+	url = https://github.com/Alexander-Miller/pfuture
 [submodule "projectile"]
 	path = lib/projectile
 	url = https://github.com/bbatsov/projectile
@@ -125,6 +131,12 @@
 [submodule "treemacs"]
 	path = lib/treemacs
 	url = https://github.com/Alexander-Miller/treemacs
+        load-path = src/elisp
+	load-path = src/extra
+	no-byte-compile = src/extra/treemacs-all-the-icons.el
+	no-byte-compile = src/extra/treemacs-evil.el
+	no-byte-compile = src/extra/treemacs-persp.el
+	no-byte-compile = src/extra/treemacs-perspective.el
 [submodule "undo-tree"]
 	path = lib/undo-tree
 	url = https://gitlab.com/tsc25/undo-tree
