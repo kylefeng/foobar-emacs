@@ -25,7 +25,6 @@
     (load-file custom-file))
 #+end_src
 
-
 ** Constants
 #+begin_src elisp :tangle yes 
   ;; -*- lexical-binding: t; -*-  
@@ -36,7 +35,6 @@
 
   (defconst *spell-check-support-enabled* nil)
 #+end_src
-
 
 ** Basic config
 #+begin_src elisp :tangle yes
@@ -65,7 +63,6 @@
   (delete-selection-mode t)
 #+end_src
 
-
 ** Utils
 #+begin_src elisp :tangle yes
   (defun mp-elisp-mode-eval-buffer ()
@@ -78,7 +75,6 @@
 
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
-
 
 ** UI config
 #+begin_src elisp :tangle yes
@@ -190,41 +186,51 @@
 
 * Enhancement
 ** General
+*** which-key
 #+begin_src elisp :tangle yes
-  ;; which-key
   (require 'which-key)
   (which-key-mode)
+#+end_src
 
-  ;; fly-check
+*** fly-check
+#+begin_src elisp :tangle yes
   (require 'flycheck)
   (setq truncate-lines nil)
   (add-hook 'prog-mode 'flycheck-mode)
+#+end_src
 
+*** ace-window
+#+begin_src elisp :tangle yes
   ;; ace-window
   (require 'ace-window)
   (global-key-binding (kbd "M-o") 'ace-window)
+#+end_src
 
-  ;; amx
+*** amx
+#+begin_src elisp :tangle yes
   (require 'amx)
   (amx-mode)
+#+end_src
 
-  ;; mwim
+*** mwim
+#+begin_src elisp :tangle yes
   (require 'mwim)
   (global-key-binding (kbd "C-a") 'mwim-beginning-of-code-or-line)
   (global-key-binding (kbd "C-e") 'mwim-end-of-code-or-line)
+#+end_src
 
-  ;; exec-path-from-shell
+*** exec-path-from-shell
+#+begin_src elisp :tangle yes
   (require 'exec-path-from-shell)
   (if (memq window-system '(mac ns x))
       (exec-path-from-shell-initialize))
+#+end_src
 
-  ;; keycast
+*** keycast
+#+begin_src elisp :tangle yes
   (require 'keycast)
   (keycast-mode-line-mode t)
 #+end_src
-
-** Hydra
-
 
 ** Ivy Mode
 *** ivy
@@ -267,7 +273,6 @@
   (global-set-key (kbd "C-r") 'swiper-isearch-backward)
 #+end_src
 
-
 ** Company Mode
 *** company
 #+begin_src elisp :tangle yes
@@ -285,4 +290,29 @@
 #+begin_src elisp :tangle yes
   (require 'company-box)
   (add-hook 'company-mode-hook 'company-box-mode)
+#+end_src
+
+** Undo Tree
+#+begin_src elisp :tangle yes
+  (require 'undo-tree)
+  (global-undo-tree-mode 1)
+  (setq undo-tree-auto-save-history nil)
+#+end_src
+
+* Hydra
+** hydra-undo-tree
+#+begin_src elisp :tangle yes
+  (require 'hydra)
+
+  (defhydra hydra-undo-tree (:hint nil)
+    "
+    _p_: undo _n_: redo _s_: save _l_: load  "
+    ("p"  undo-tree-undo)
+    ("n"  undo-tree-redo)
+    ("s"  undo-tree-save-history)
+    ("l"  undo-tree-load-history)
+    ("u"  undo-tree-visualize "visualize" :color blue)
+    ("q"  nil "quit" :color blue))
+
+  (global-set-key (kbd "C-x C-h u") 'hydra-undo-tree/body)
 #+end_src

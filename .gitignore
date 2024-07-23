@@ -8,3 +8,4 @@ lib/compat/dir
 .#*
 \#*
 amx-items
+*~undo-tree~*

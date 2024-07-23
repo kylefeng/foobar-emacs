@@ -77,9 +77,15 @@
 [submodule "mwim"]
 	path = lib/mwim
 	url = https://github.com/alezost/mwim.el
+[submodule "queue"]
+	path = lib/queue
+	url = https://github.com/emacsmirror/queue.git
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
+[submodule "undo-tree"]
+	path = lib/undo-tree
+	url = https://gitlab.com/tsc25/undo-tree
 [submodule "which-key"]
 	path = lib/which-key
 	url = https://github.com/justbur/emacs-which-key
