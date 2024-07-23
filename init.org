@@ -472,6 +472,12 @@ Adds marginalia to the minibuffer completions.
 #+end_src
 
 
+** Scheme
+#+begin_src elisp :tangle yes
+  (require 'geiser)
+  (require 'geiser-guile)
+#+end_src
+
 * Org Mode
 #+begin_src elisp :tangle yes
   (require 'org)

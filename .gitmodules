@@ -59,6 +59,12 @@
 [submodule "frame-local"]
 	path = lib/frame-local
 	url = https://github.com/sebastiencs/frame-local
+[submodule "geiser"]
+	path = lib/geiser
+	url = https://gitlab.com/emacs-geiser/geiser
+[submodule "geiser-guile"]
+	path = lib/geiser-guile
+	url = https://gitlab.com/emacs-geiser/guile
 [submodule "go-mode"]
 	path = lib/go-mode
 	url = https://github.com/dominikh/go-mode.el
