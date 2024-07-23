@@ -468,7 +468,9 @@ Adds marginalia to the minibuffer completions.
 
 ** Haskell
 #+begin_src elisp :tangle yes
+  (require 'haskell-mode)
 #+end_src
+
 
 * Org Mode
 #+begin_src elisp :tangle yes
