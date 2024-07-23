@@ -345,6 +345,30 @@ Adds marginalia to the minibuffer completions.
 #+end_src
 
 
+* Programming
+** yasnippet
+#+begin_src elisp :tangle yes
+  (require 'yasnippet)
+
+  (yas-reload-all)
+
+  (defun company-mode/backend-with-yas (backend)
+    (if (and (listp backend) (member 'company-yasnippet backend))
+     backend
+     (append (if (consp backend) backend (list backend))
+	  '(:with company-yasnippet))))
+  (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+
+  (add-hook 'prog-mode 'yas-minor-mode)
+  (add-hook 'yas-minor-mode
+	    (lambda ()
+	      ;; unbind <TAB> completion
+	      (define-key yas-minor-mode-map [(tab)]    nil)
+	      (define-key yas-minor-mode-map (kbd "TAB")  nil)
+	      (define-key yas-minor-mode-map (kbd "<tab>") nil)
+	      (keymap-set yas-minor-mode-map "S-<tab>" 'yas-expand)))
+#+end_src
+
 * Hydra
 ** hydra-undo-tree
 #+begin_src elisp :tangle yes
@@ -392,3 +416,9 @@ Adds marginalia to the minibuffer completions.
     ("q" nil))
   (global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
 #+end_src
+
+
+
+
+
+
