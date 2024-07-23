@@ -83,6 +83,9 @@
 [submodule "queue"]
 	path = lib/queue
 	url = https://github.com/emacsmirror/queue.git
+[submodule "rainbow-delimiters"]
+	path = lib/rainbow-delimiters
+	url = https://github.com/Fanael/rainbow-delimiters
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
