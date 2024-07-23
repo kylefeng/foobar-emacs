@@ -9,3 +9,4 @@ lib/compat/dir
 \#*
 amx-items
 *~undo-tree~*
+.mc-list.el
