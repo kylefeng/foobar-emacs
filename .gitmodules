@@ -47,6 +47,9 @@
 [submodule "exec-path-from-shell"]
 	path = lib/exec-path-from-shell
 	url = https://github.com/purcell/exec-path-from-shell
+[submodule "f"]
+	path = lib/f
+	url = https://github.com/rejeep/f.el
 [submodule "flycheck"]
 	path = lib/flycheck
 	url = https://github.com/flycheck/flycheck
@@ -59,6 +62,9 @@
 [submodule "highlight-symbol"]
 	path = lib/highlight-symbol
 	url = https://github.com/nschum/highlight-symbol.el
+[submodule "ht"]
+	path = lib/ht
+	url = https://github.com/Wilfred/ht.el
 [submodule "hydra"]
 	path = lib/hydra
 	url = https://github.com/abo-abo/hydra
@@ -71,12 +77,24 @@
 [submodule "llama"]
 	path = lib/llama
 	url = https://git.sr.ht/~tarsius/llama
+[submodule "lsp-ivy"]
+	path = lib/lsp-ivy
+	url = https://github.com/emacs-lsp/lsp-ivy
+[submodule "lsp-mode"]
+	path = lib/lsp-mode
+	url = https://github.com/emacs-lsp/lsp-mode
+[submodule "lsp-ui"]
+	path = lib/lsp-ui
+	url = https://github.com/emacs-lsp/lsp-ui
 [submodule "magit"]
 	path = lib/magit
 	url = https://github.com/magit/magit
 [submodule "marginalia"]
 	path = lib/marginalia
 	url = https://github.com/minad/marginalia
+[submodule "markdown-mode"]
+	path = lib/markdown-mode
+	url = https://github.com/jrblevin/markdown-mode
 [submodule "modus-themes"]
 	path = lib/modus-themes
 	url = https://github.com/protesilaos/modus-themes
@@ -95,6 +113,9 @@
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
+[submodule "spinner"]
+	path = lib/spinner
+	url = https://github.com/Malabarba/spinner.el
 [submodule "undo-tree"]
 	path = lib/undo-tree
 	url = https://gitlab.com/tsc25/undo-tree

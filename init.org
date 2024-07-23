@@ -25,7 +25,6 @@
     (load-file custom-file))
 #+end_src
 
-
 ** Constants
 #+begin_src elisp :tangle yes 
   ;; -*- lexical-binding: t; -*-  
@@ -63,6 +62,15 @@
 
   ;; 选中文本后输入会替换文本
   (delete-selection-mode t)
+
+  (setq-default tab-width 4
+		indent-tabs-mode nil)
+
+  ;; 高亮括号
+  (add-hook 'prog-mode-hook #'show-paren-mode)
+
+  ;; 折叠代码
+  (add-hook 'prog-mode-hook #'hs-minor-mode)
 #+end_src
 
 
@@ -131,34 +139,9 @@
 *** rainbow-delimiters
 #+begin_src elisp :tangle yes
   (require 'rainbow-delimiters)
-  (add-hook 'prog-mod
-	    'rainbow-delimiters-mode)
+  (add-hook 'prog-mod-hook 'rainbow-delimiters-mode)
 #+end_src
 
-
-* Keyboard Bindings
-
-** User defined KBD
-#+begin_src elisp :tangle yes
-  (when *is-mac*
-    (setq mac-command-modifier 'meta)
-    (setq mac-option-modifier 'none))
-
-  (defun next-ten-lines ()
-    "Move cursor to next 10 lines."
-    (interactive)
-    (forward-line 10))
-
-  (defun previous-ten-lines ()
-    "Move cursor to previous 10 lines."
-    (interactive)
-    (forward-line -10))
-
-  (global-set-key (kbd "M-w") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
-  (global-set-key (kbd "C-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
-  (global-set-key (kbd "M-n") 'next-ten-lines)
-  (global-set-key (kbd "M-p") 'previous-ten-lines)
-#+end_src
 
 
 * Evil Mode
@@ -230,7 +213,7 @@
 #+begin_src elisp :tangle yes
   (require 'flycheck)
   (setq truncate-lines nil)
-  (add-hook 'prog-mode 'flycheck-mode)
+  (add-hook 'prog-mode-hook 'flycheck-mode)
 #+end_src
 
 *** ace-window
@@ -379,8 +362,8 @@ Adds marginalia to the minibuffer completions.
 	  '(:with company-yasnippet))))
   (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
 
-  (add-hook 'prog-mode 'yas-minor-mode)
-  (add-hook 'yas-minor-mode
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'yas-minor-mode-hook
 	    (lambda ()
 	      ;; unbind <TAB> completion
 	      (define-key yas-minor-mode-map [(tab)]    nil)
@@ -393,6 +376,159 @@ Adds marginalia to the minibuffer completions.
   (require 'yasnippet-snippets)
 #+end_src
 
+
+** LSP
+*** lsp-mode
+#+begin_src elisp :tangle yes
+  (require 'lsp-mode)
+  (require 'lsp-ui)
+  (require 'lsp-ivy)
+
+  (autoload 'lsp "lsp-mode" "")
+  (autoload 'lsp-deferred "lsp-mode" "")
+  (autoload 'lsp-ui-mode "lsp-ui" "")
+  (autoload 'lsp-ivy-workspace-symbol "lsp-ivy" "")
+
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-file-watch-threshold 500)
+  (setq lsp-prefer-flymake nil
+     lsp-keep-workspace-alive nil
+     lsp-enable-indentation nil
+     lsp-enable-on-type-formatting nil
+     lsp-auto-guess-root nil
+     lsp-enable-snippet t)
+
+  (setq lsp-completion-provider :none)
+  (setq lsp-headerline-breadcrumb-enable t)
+
+  (add-hook 'c-mode-hook #'lsp-deferred)
+  (add-hook 'go-mode-hook #'lsp-deferred)
+  (add-hook 'java-mode-hook #'lsp-deferred)
+  (add-hook 'js-mode-hook #'lsp-deferred)
+  (add-hook 'python-mode-hook #'lsp-deferred)
+  (add-hook 'web-mode-hook #'lsp-deferred)
+  (add-hook 'html-mode-hook #'lsp-deferred)
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+
+  (global-set-key (kbd "C-c l s") #'lsp-ivy-workspace-symbol)
+#+end_src
+
+* Org Mode
+#+begin_src elisp :tangle yes
+  (require 'org)
+
+  (with-eval-after-load 'org
+    (defvar org-agenda-dir "gtd org files location")
+    (setq-default org-agenda-dir "/Users/kylefeng/development/org")
+  
+    (setq
+      ;; Edit settings
+      org-tags-column -128 
+      org-catch-invisible-edits 'show-and-error
+      org-starup-indented t
+      org-auto-align-tags nil
+      org-special-ctrl-a/e t
+      org-insert-heading-respect-content t
+  
+      ;; Org styling, hide markup etc.
+      org-hide-emphasis-markers t
+      org-pretty-entities t
+      org-ellipsis "…"
+  
+      ;; Agenda styling
+      org-agenda-tags-column 0
+      org-agenda-block-separator ?─
+      org-agenda-time-grid
+      '((daily today require-timed)
+	(800 1000 1200 1400 1600 1800 2000)
+	" ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+      org-agenda-current-time-string
+      "<- now ─────────────────────────────────────────────────"
+  
+      org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c @/!)"))
+  
+      ;; agenda files
+      org-agenda-files '(org-agenda-dir)
+      )
+  
+    (setq org-agenda-file-note (expand-file-name "notes.org" org-agenda-dir))
+    (setq org-agenda-file-task (expand-file-name "task.org" org-agenda-dir))
+    (setq org-agenda-file-calendar (expand-file-name "calendar.org" org-agenda-dir))
+    (setq org-agenda-file-finished (expand-file-name "finished.org" org-agenda-dir))
+    (setq org-agenda-file-canceled (expand-file-name "canceled.org" org-agenda-dir))
+  
+    (setq org-capture-templates
+      '(
+	 ("t" "Todo" entry (file+headline org-agenda-file-task "Work")
+	   "* TODO [#B] %?\n  %i\n"
+	   :empty-lines 1)
+	  ("l" "Tolearn" entry (file+headline org-agenda-file-task "Learning")
+	    "* TODO [#B] %?\n  %i\n"
+	    :empty-lines 1)
+	  ("h" "Toplay" entry (file+headline org-agenda-file-task "Hobbies")
+	    "* TODO [#C] %?\n  %i\n"
+	    :empty-lines 1)
+	  ("I" "Inbox" entry (file+headline org-agenda-file-task "Inbox")
+	    "* TODO [#C] %?\n  %i\n"
+	    :empty-lines 1)
+	  ("o" "Todo_others" entry (file+headline org-agenda-file-task "Others")
+	    "* TODO [#C] %?\n  %i\n"
+	    :empty-lines 1)
+	  ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
+	    "* %?\n  %i\n %U"
+	    :empty-lines 1)
+	  ("i" "ideas" entry (file+headline org-agenda-file-note "Quick ideas")
+	    "* %?\n  %i\n %U"
+	    :empty-lines 1)
+	  ))
+  
+    (setq org-agenda-custom-commands
+      '(
+	("w" . "任务安排")
+	("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
+	("wb" "重要且不紧急的任务" tags-todo "-weekly-monthly-daily+PRIORITY=\"B\"")
+	("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
+	("W" "Weekly Review"
+	 ((stuck "") ;; review stuck projects as designated by org-stuck-projects
+	  (tags-todo "daily")
+	  (tags-todo "weekly")
+	  (tags-todo "work")
+	  (tags-todo "blog")
+	  (tags-todo "book")
+	  ))
+	))
+  
+    (setq org-refile-targets  '((org-agenda-file-finished :maxlevel . 1)
+				(org-agenda-file-note :maxlevel . 1)
+				(org-agenda-file-canceled :maxlevel . 1)
+				 (org-agenda-file-task :maxlevel . 1)
+				 )))
+#+end_src
+
+
+* Keyboard Bindings
+** User defined KBD
+#+begin_src elisp :tangle yes
+  (when *is-mac*
+    (setq mac-command-modifier 'meta)
+    (setq mac-option-modifier 'none))
+
+  (defun next-ten-lines ()
+    "Move cursor to next 10 lines."
+    (interactive)
+    (forward-line 10))
+
+  (defun previous-ten-lines ()
+    "Move cursor to previous 10 lines."
+    (interactive)
+    (forward-line -10))
+
+  (global-set-key (kbd "M-w") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
+  (global-set-key (kbd "C-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
+  (global-set-key (kbd "M-n") 'next-ten-lines)
+  (global-set-key (kbd "M-p") 'previous-ten-lines)
+#+end_src
 
 * Hydra
 ** hydra-undo-tree
@@ -441,9 +577,3 @@ Adds marginalia to the minibuffer completions.
     ("q" nil))
   (global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
 #+end_src
-
-
-
-
-
-
