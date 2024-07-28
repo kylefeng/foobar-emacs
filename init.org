@@ -305,7 +305,7 @@ Copy from purcell/emacs.d
 #+begin_src elisp :tangle yes
   ;; ace-window
   (require 'ace-window)
-  (global-key-binding (kbd "M-o") 'ace-window)
+  (global-set-key (kbd "M-o") 'ace-window)
 #+end_src
 
 *** amx
@@ -317,8 +317,8 @@ Copy from purcell/emacs.d
 *** mwim
 #+begin_src elisp :tangle yes
   (require 'mwim)
-  (global-key-binding (kbd "C-a") 'mwim-beginning-of-code-or-line)
-  (global-key-binding (kbd "C-e") 'mwim-end-of-code-or-line)
+  (global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line)
+  (global-set-key (kbd "C-e") 'mwim-end-of-code-or-line)
 #+end_src
 
 *** exec-path-from-shell
