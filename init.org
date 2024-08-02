@@ -1,4 +1,5 @@
-#Title Emacs Init Configuration
+#+TITLE: My Emacs init.el Configuration
+#+AUTHOR: Kyle Feng
 #+OPTIONS: H:4 toc:t
 #+STARTUP: indent content
 
@@ -220,6 +221,7 @@ Copy from purcell/emacs.d
 ** UI config
 *** Basic UI
 #+begin_src elisp :tangle yes
+  (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
 
@@ -228,6 +230,7 @@ Copy from purcell/emacs.d
 
   (global-display-line-numbers-mode t)
 
+  ;; 相对行数方便跨行操作计数
   (setq display-line-numbers-type 'relative)
 
   ;; turn on good-scroll
@@ -285,6 +288,7 @@ Copy from purcell/emacs.d
   (require 'rainbow-delimiters)
   (add-hook 'prog-mod-hook 'rainbow-delimiters-mode)
 #+end_src
+
 
 * Evil Mode
 #+begin_src elisp :tangle yes
@@ -534,14 +538,14 @@ Adds marginalia to the minibuffer completions.
 
   ;; 全局快捷键绑定
   (global-set-key (kbd "M-0")  #'treemacs-select-window)
-  (global-set-key (kbd "C-x t 1") #'treemacs-delete-other-window)
+  (global-set-key (kbd "C-x t 1") #'treemacs-delete-other-windows)
   (global-set-key (kbd "C-x t t") #'treemacs)
   (global-set-key (kbd "C-x t B") #'treemacs-bookmark)
   (global-set-key (kbd "C-x t M-t") #'treemacs-find-tag)
 
   ;; treemacs-mode-map 快捷键绑定
   (with-eval-after-load 'treemacs
-    (define-key treemacs-mode-map (kbd "/") #'treemacs-advanced-helppfuturefel-hydra))
+    (define-key treemacs-mode-map (kbd "/") #'treemacs-advanced-helpful-hydra))
 #+end_src
 
 
@@ -607,18 +611,68 @@ Adds marginalia to the minibuffer completions.
   (require 'geiser-guile)
 #+end_src
 
+
+
+
+** Python
+*** python-mode
+#+begin_src elisp :tangle yes
+  (require 'python)
+
+  (add-to-list 'auto-mode-alist
+               '("\\.py\\'" . python-mode))
+
+  (setq python-shell-interpreter "python3")
+#+end_src
+
+*** pyvenv
+#+begin_src elisp :tangle yes
+  (require 'pyvenv)
+
+  (add-hook 'python-mode-hook 'pyvenv-mode)
+#+end_src
+
+*** poetry
+#+begin_src elisp :tangle yes
+  (require 'poetry)
+#+end_src
+
+*** lsp-pyright
+#+begin_src elisp :tangle yes
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (require 'lsp-pyright)
+              (lsp-deferred)))
+#+end_src
+
+
+
 * Org Mode
+** Org
 #+begin_src elisp :tangle yes
   (require 'org)
+  (require 'org-modern)
+
+  (dolist (face '(window-divider
+                  window-divider-first-pixel
+                  window-divider-last-pixel))
+    (face-spec-reset-face face)
+    (set-face-foreground face (face-attribute 'default :background)))
+  (set-face-background 'fringe (face-attribute 'default :background))
 
   (with-eval-after-load 'org
     (defvar org-agenda-dir "gtd org files location")
     (setq-default org-agenda-dir "/Users/kylefeng/development/org")
 
+    ;; Choose some fonts
+    (set-face-attribute 'default nil :family "Iosevka")
+    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+    (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+
     (setq
       ;; Edit settings
       org-tags-column -128 
-      org-catch-invisible-edits 'show-and-error
+      org-fold-catch-invisible-edits 'show-and-error
       org-starup-indented t
       org-auto-align-tags nil
       org-special-ctrl-a/e t
@@ -627,23 +681,26 @@ Adds marginalia to the minibuffer completions.
       ;; Org styling, hide markup etc.
       org-hide-emphasis-markers t
       org-pretty-entities t
-      org-ellipsis "…"
 
       ;; Agenda styling
       org-agenda-tags-column 0
       org-agenda-block-separator ?─
       org-agenda-time-grid
       '((daily today require-timed)
-    (800 1000 1200 1400 1600 1800 2000)
-    " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+        (800 1000 1200 1400 1600 1800 2000)
+        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+
       org-agenda-current-time-string
       "<- now ─────────────────────────────────────────────────"
 
       org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c @/!)"))
 
       ;; agenda files
-      org-agenda-files '(org-agenda-dir)
-      )
+      org-agenda-files '(org-agenda-dir))
+
+    ;; Ellipsis styling
+    (setq org-ellipsis "…")
+    (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 
     (setq org-agenda-file-note (expand-file-name "notes.org" org-agenda-dir))
     (setq org-agenda-file-task (expand-file-name "task.org" org-agenda-dir))
@@ -695,8 +752,7 @@ Adds marginalia to the minibuffer completions.
     (setq org-refile-targets  '((org-agenda-file-finished :maxlevel . 1)
                 (org-agenda-file-note :maxlevel . 1)
                 (org-agenda-file-canceled :maxlevel . 1)
-                 (org-agenda-file-task :maxlevel . 1)
-                 )))
+                 (org-agenda-file-task :maxlevel . 1))))
 
   (defun org-insert-image ()
     (interactive)
@@ -725,36 +781,10 @@ Adds marginalia to the minibuffer completions.
       (org-insert-link nil (concat "file:" image-file) "")))
 #+end_src
 
-
-** Python
-*** python-mode
+** Org Modern
 #+begin_src elisp :tangle yes
-  (require 'python)
-
-  (add-to-list 'auto-mode-alist
-               '("\\.py\\'" . python-mode))
-
-  (setq python-shell-interpreter "python3")
-#+end_src
-
-*** pyvenv
-#+begin_src elisp :tangle yes
-  (require 'pyvenv)
-
-  (add-hook 'python-mode-hook 'pyvenv-mode)
-#+end_src
-
-*** poetry
-#+begin_src elisp :tangle yes
-  (require 'poetry)
-#+end_src
-
-*** lsp-pyright
-#+begin_src elisp :tangle yes
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (require 'lsp-pyright)
-              (lsp-deferred)))
+  (require 'org-modern)
+  (with-eval-after-load 'org (global-org-modern-mode))
 #+end_src
 
 

@@ -119,6 +119,9 @@
 [submodule "mwim"]
 	path = lib/mwim
 	url = https://github.com/alezost/mwim.el
+[submodule "org-modern"]
+	path = lib/org-modern
+	url = https://github.com/minad/org-modern
 [submodule "pfuture"]
 	path = lib/pfuture
 	url = https://github.com/Alexander-Miller/pfuture
