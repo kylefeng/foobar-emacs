@@ -47,9 +47,6 @@
 [submodule "evil-visualstar"]
 	path = lib/evil-visualstar
 	url = https://github.com/bling/evil-visualstar
-[submodule "exec-path-from-shell"]
-	path = lib/exec-path-from-shell
-	url = https://github.com/purcell/exec-path-from-shell
 [submodule "f"]
 	path = lib/f
 	url = https://github.com/rejeep/f.el

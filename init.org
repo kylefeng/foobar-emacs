@@ -1,3 +1,7 @@
+#Title Emacs Init Configuration
+#+OPTIONS: H:4 toc:t
+#+STARTUP: indent content
+
 * Startup Config
 ** Early init
 #+NAME: early-init
@@ -97,6 +101,7 @@ Copy from purcell/emacs.d
   (add-hook 'after-init-hook 'sanityinc/show-init-time)
 #+end_src
 
+
 ** Constants
 #+begin_src elisp :tangle yes 
   ;; -*- lexical-binding: t; -*-  
@@ -106,6 +111,58 @@ Copy from purcell/emacs.d
 			     (eq system-type 'windows-nt)))
 
   (defconst *spell-check-support-enabled* nil)
+#+end_src
+
+
+** System Env
+#+begin_src elisp :tangle yes
+  (setq env-file (expand-file-name "env" user-emacs-directory))
+
+  (defun doom-call-process (command &rest args)
+      "Execute COMMAND with ARGS synchronously.
+
+    Returns (STATUS . OUTPUT) when it is done, where STATUS is the returned error
+    code of the process and OUTPUT is its stdout output."
+      (with-temp-buffer
+        (cons (or (apply #'call-process command nil t nil (remq nil args))
+                  -1)
+              (string-trim (buffer-string)))))
+
+  (defun generate-env-file ()
+    (interactive)
+    (let* ((path (expand-file-name "env.el"
+                                   (concat user-emacs-directory "/lisp")))
+           (command (format "emacs --batch -l '%s'" path)))
+      (message
+       (prin1-to-string
+        (doom-call-process "zsh" "-lic" command)))))
+
+  ;; 从文件中加载环境变量
+  (defun doom-load-envvars-file (file &optional noerror)
+    "Read and set envvars from FILE.
+  If NOERROR is non-nil, don't throw an error if the file doesn't exist or is
+  unreadable. Returns the names of envvars that were changed."
+    (if (null (file-exists-p file))
+        (unless noerror
+          (signal 'file-error (list "No envvar file exists" file)))
+      (with-temp-buffer
+        (insert-file-contents file)
+        (when-let (env (read (current-buffer)))
+          (let ((tz (getenv-internal "TZ")))
+            (setq-default
+             process-environment
+             (append env (default-value 'process-environment))
+             exec-path
+             (append (split-string (getenv "PATH") path-separator t)
+                     (list exec-directory))
+             shell-file-name
+             (or (getenv "SHELL")
+                 (default-value 'shell-file-name)))
+            (when-let (newtz (getenv-internal "TZ"))
+              (unless (equal tz newtz)
+                (set-time-zone-rule newtz))))
+          env))))
+  (doom-load-envvars-file env-file)
 #+end_src
 
 
@@ -319,13 +376,6 @@ Copy from purcell/emacs.d
   (require 'mwim)
   (global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line)
   (global-set-key (kbd "C-e") 'mwim-end-of-code-or-line)
-#+end_src
-
-*** exec-path-from-shell
-#+begin_src elisp :tangle yes
-  (require 'exec-path-from-shell)
-  (if (memq window-system '(mac ns x))
-      (exec-path-from-shell-initialize))
 #+end_src
 
 *** marginalia
@@ -564,7 +614,7 @@ Adds marginalia to the minibuffer completions.
   (with-eval-after-load 'org
     (defvar org-agenda-dir "gtd org files location")
     (setq-default org-agenda-dir "/Users/kylefeng/development/org")
-  
+
     (setq
       ;; Edit settings
       org-tags-column -128 
@@ -573,80 +623,106 @@ Adds marginalia to the minibuffer completions.
       org-auto-align-tags nil
       org-special-ctrl-a/e t
       org-insert-heading-respect-content t
-  
+
       ;; Org styling, hide markup etc.
       org-hide-emphasis-markers t
       org-pretty-entities t
       org-ellipsis "…"
-  
+
       ;; Agenda styling
       org-agenda-tags-column 0
       org-agenda-block-separator ?─
       org-agenda-time-grid
       '((daily today require-timed)
-	(800 1000 1200 1400 1600 1800 2000)
-	" ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+    (800 1000 1200 1400 1600 1800 2000)
+    " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
       org-agenda-current-time-string
       "<- now ─────────────────────────────────────────────────"
-  
+
       org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c @/!)"))
-  
+
       ;; agenda files
       org-agenda-files '(org-agenda-dir)
       )
-  
+
     (setq org-agenda-file-note (expand-file-name "notes.org" org-agenda-dir))
     (setq org-agenda-file-task (expand-file-name "task.org" org-agenda-dir))
     (setq org-agenda-file-calendar (expand-file-name "calendar.org" org-agenda-dir))
     (setq org-agenda-file-finished (expand-file-name "finished.org" org-agenda-dir))
     (setq org-agenda-file-canceled (expand-file-name "canceled.org" org-agenda-dir))
-  
+
     (setq org-capture-templates
       '(
-	 ("t" "Todo" entry (file+headline org-agenda-file-task "Work")
-	   "* TODO [#B] %?\n  %i\n"
-	   :empty-lines 1)
-	  ("l" "Tolearn" entry (file+headline org-agenda-file-task "Learning")
-	    "* TODO [#B] %?\n  %i\n"
-	    :empty-lines 1)
-	  ("h" "Toplay" entry (file+headline org-agenda-file-task "Hobbies")
-	    "* TODO [#C] %?\n  %i\n"
-	    :empty-lines 1)
-	  ("I" "Inbox" entry (file+headline org-agenda-file-task "Inbox")
-	    "* TODO [#C] %?\n  %i\n"
-	    :empty-lines 1)
-	  ("o" "Todo_others" entry (file+headline org-agenda-file-task "Others")
-	    "* TODO [#C] %?\n  %i\n"
-	    :empty-lines 1)
-	  ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
-	    "* %?\n  %i\n %U"
-	    :empty-lines 1)
-	  ("i" "ideas" entry (file+headline org-agenda-file-note "Quick ideas")
-	    "* %?\n  %i\n %U"
-	    :empty-lines 1)
-	  ))
-  
+     ("t" "Todo" entry (file+headline org-agenda-file-task "Work")
+       "* TODO [#B] %?\n  %i\n"
+       :empty-lines 1)
+      ("l" "Tolearn" entry (file+headline org-agenda-file-task "Learning")
+        "* TODO [#B] %?\n  %i\n"
+        :empty-lines 1)
+      ("h" "Toplay" entry (file+headline org-agenda-file-task "Hobbies")
+        "* TODO [#C] %?\n  %i\n"
+        :empty-lines 1)
+      ("I" "Inbox" entry (file+headline org-agenda-file-task "Inbox")
+        "* TODO [#C] %?\n  %i\n"
+        :empty-lines 1)
+      ("o" "Todo_others" entry (file+headline org-agenda-file-task "Others")
+        "* TODO [#C] %?\n  %i\n"
+        :empty-lines 1)
+      ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
+        "* %?\n  %i\n %U"
+        :empty-lines 1)
+      ("i" "ideas" entry (file+headline org-agenda-file-note "Quick ideas")
+        "* %?\n  %i\n %U"
+        :empty-lines 1)
+      ))
+
     (setq org-agenda-custom-commands
       '(
-	("w" . "任务安排")
-	("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
-	("wb" "重要且不紧急的任务" tags-todo "-weekly-monthly-daily+PRIORITY=\"B\"")
-	("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
-	("W" "Weekly Review"
-	 ((stuck "") ;; review stuck projects as designated by org-stuck-projects
-	  (tags-todo "daily")
-	  (tags-todo "weekly")
-	  (tags-todo "work")
-	  (tags-todo "blog")
-	  (tags-todo "book")
-	  ))
-	))
-  
+    ("w" . "任务安排")
+    ("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
+    ("wb" "重要且不紧急的任务" tags-todo "-weekly-monthly-daily+PRIORITY=\"B\"")
+    ("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
+    ("W" "Weekly Review"
+     ((stuck "") ;; review stuck projects as designated by org-stuck-projects
+      (tags-todo "daily")
+      (tags-todo "weekly")
+      (tags-todo "work")
+      (tags-todo "blog")
+      (tags-todo "book")
+      ))
+    ))
+
     (setq org-refile-targets  '((org-agenda-file-finished :maxlevel . 1)
-				(org-agenda-file-note :maxlevel . 1)
-				(org-agenda-file-canceled :maxlevel . 1)
-				 (org-agenda-file-task :maxlevel . 1)
-				 )))
+                (org-agenda-file-note :maxlevel . 1)
+                (org-agenda-file-canceled :maxlevel . 1)
+                 (org-agenda-file-task :maxlevel . 1)
+                 )))
+
+  (defun org-insert-image ()
+    (interactive)
+    (let* ((buffer-name (buffer-name))
+           (path (concat default-directory "images/"))
+           (image-dir (concat path buffer-name "/"))
+           (image-file (concat image-dir
+                               (format-time-string "%Y%m%d_%H%M%S.png")))
+           (counter 1))
+      ;; 如果不存在 images 目录则创建
+      (if (not (file-exists-p path))
+          (mkdir path))
+
+      ;; 如果 buffer 名称目录已存在，则递增计数直到找到可用的目录名
+      (while (file-exists-p image-dir)
+        (setq image-dir (concat path buffer-name "_" (number-to-string counter) "/"))
+        (setq counter (1+ counter)))
+
+      ;; 创建最终的图像目录
+      (mkdir image-dir)
+
+      ;; 执行 pngpaste 命令并将图像保存到指定目录
+      (shell-command (concat "pngpaste " image-file))
+
+      ;; 插入链接
+      (org-insert-link nil (concat "file:" image-file) "")))
 #+end_src
 
 
