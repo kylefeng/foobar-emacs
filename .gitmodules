@@ -10,6 +10,9 @@
 [submodule "avy"]
 	path = lib/avy
 	url = https://github.com/abo-abo/avy
+[submodule "benchmark-init"]
+	path = lib/benchmark-init
+	url = https://github.com/dholm/benchmark-init-el
 [submodule "borg"]
 	path = lib/borg
 	url = git@github.com:emacscollective/borg.git
@@ -122,6 +125,12 @@
 [submodule "org-modern"]
 	path = lib/org-modern
 	url = https://github.com/minad/org-modern
+[submodule "org-roam"]
+	path = lib/org-roam
+	url = https://github.com/org-roam/org-roam
+[submodule "org-roam-ui"]
+	path = lib/org-roam-ui
+	url = https://github.com/org-roam/org-roam-ui
 [submodule "pfuture"]
 	path = lib/pfuture
 	url = https://github.com/Alexander-Miller/pfuture
@@ -146,6 +155,9 @@
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
+[submodule "simple-httpd"]
+	path = lib/simple-httpd
+	url = https://github.com/skeeto/emacs-web-server
 [submodule "smart-mode-line"]
 	path = lib/smart-mode-line
 	url = https://github.com/Malabarba/smart-mode-line
