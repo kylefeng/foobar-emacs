@@ -122,6 +122,9 @@
 [submodule "mwim"]
 	path = lib/mwim
 	url = https://github.com/alezost/mwim.el
+[submodule "org"]
+	path = lib/org
+	url = https://git.savannah.gnu.org/git/emacs/org-mode.git
 [submodule "org-modern"]
 	path = lib/org-modern
 	url = https://github.com/minad/org-modern
@@ -155,6 +158,9 @@
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
+[submodule "setup"]
+	path = lib/setup
+	url = https://github.com/emacsmirror/setup.git
 [submodule "simple-httpd"]
 	path = lib/simple-httpd
 	url = https://github.com/skeeto/emacs-web-server
@@ -176,6 +182,9 @@
 [submodule "undo-tree"]
 	path = lib/undo-tree
 	url = https://gitlab.com/tsc25/undo-tree
+[submodule "websocket"]
+	path = lib/websocket
+	url = https://github.com/ahyatt/emacs-websocket
 [submodule "which-key"]
 	path = lib/which-key
 	url = https://github.com/justbur/emacs-which-key

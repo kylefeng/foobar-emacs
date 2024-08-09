@@ -7,27 +7,74 @@
 ** Early init
 #+NAME: early-init
 #+begin_src elisp :tangle ~/.emacs.d/early-init.el
-  ;; -*- lexical-binding: t; -*-
-  (setq package-enable-at-startup nil)
+;; -*- lexical-binding: t; -*-
 
-  ;; Adjust garbage collection thresholds during startup, and thereafter
-  (setq gc-cons-threshold (* 128 1024 1024))
+;; Adjust garbage collection thresholds during startup, and thereafter
+(setq gc-cons-threshold most-positive-fixnum)
 
-  ;; Process performance tuning
-  (setq read-process-output-max (* 4 1024 1024))
-  (setq process-adaptive-read-buffering nil)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 16 1024 1024))))
 
-  (add-to-list 'load-path (expand-file-name "lib/borg" user-emacs-directory))
-  (require 'borg)
-  (setq borg-rewrite-urls-alist
-    '(("git@github.com:" . "https://github.com/")
-      ("git@gitlab.com:" . "https://gitlab.com/")))
-  (borg-initialize)
+;; Process performance tuning
+(setq read-process-output-max (* 4 1024 1024))
+(setq process-adaptive-read-buffering nil)
 
-  ;; 自定义 custom file
-  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (when (file-exists-p custom-file)
-    (load-file custom-file))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; START fork from - https://github.com/jamescherti/minimal-emacs.d/blob/main/early-init.el
+
+(defvar minimal-emacs-frame-title-format "%b – Emacs"
+  "Template for displaying the title bar of visible and iconified frame.")
+
+;; Prefer loading newer compiled files
+(setq load-prefer-newer t)
+
+;; Reduce rendering/line scan work by not rendering cursors or regions in
+;; non-focused windows.
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
+
+;; Disable warnings from the legacy advice API. They aren't useful.
+(setq ad-redefinition-action 'accept)
+
+;; Ignore warnings about "existing variables being aliased".
+(setq warning-suppress-types '((defvaralias) (lexical-binding)))
+
+;; Don't ping things that look like domain names.
+(setq ffap-machine-p-known 'reject)
+
+;; By default, Emacs "updates" its ui more often than it needs to
+(setq idle-update-delay 1.0)
+
+;; Font compacting can be very resource-intensive, especially when rendering
+;; icon fonts on Windows. This will increase memory usage.
+(setq inhibit-compacting-font-caches t)
+
+
+(setq frame-title-format minimal-emacs-frame-title-format
+      icon-title-format minimal-emacs-frame-title-format)
+;; END fork from - https://github.com/jamescherti/minimal-emacs.d/blob/main/early-init.el
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; init borg
+(add-to-list 'load-path (expand-file-name "lib/borg" user-emacs-directory))
+(require 'borg)
+
+(setq package-enable-at-startup nil)
+
+
+(setq borg-rewrite-urls-alist
+  '(("git@github.com:" . "https://github.com/")
+    ("git@gitlab.com:" . "https://gitlab.com/")))
+(borg-initialize)
+
+;; 自定义 custom file
+(defvar minimal-emacs-frame-title-format "%b – Emacs"
+  "Template for displaying the title bar of visible and iconified frame.")
+
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load-file custom-file))
 #+end_src
 
 
@@ -42,245 +89,245 @@
 
 ** Constants
 #+begin_src elisp :tangle yes 
-  ;; -*- lexical-binding: t; -*-  
-  (defconst *is-mac* (eq system-type 'darwin))
-  (defconst *is-linux* (eq system-type 'gnu/linux))
-  (defconst *is-windows* (or (eq system-type 'ms-dos)
-			     (eq system-type 'windows-nt)))
+;; -*- lexical-binding: t; -*-  
+(defconst *is-mac* (eq system-type 'darwin))
+(defconst *is-linux* (eq system-type 'gnu/linux))
+(defconst *is-windows* (or (eq system-type 'ms-dos)
+     (eq system-type 'windows-nt)))
 
-  (defconst *spell-check-support-enabled* nil)
+(defconst *spell-check-support-enabled* nil)
 #+end_src
 
 
 ** System Env
 #+begin_src elisp :tangle yes
-  (setq env-file (expand-file-name "env" user-emacs-directory))
+(setq env-file (expand-file-name "env" user-emacs-directory))
 
-  (defun doom-call-process (command &rest args)
-      "Execute COMMAND with ARGS synchronously.
+(defun doom-call-process (command &rest args)
+    "Execute COMMAND with ARGS synchronously.
 
-    Returns (STATUS . OUTPUT) when it is done, where STATUS is the returned error
-    code of the process and OUTPUT is its stdout output."
-      (with-temp-buffer
-        (cons (or (apply #'call-process command nil t nil (remq nil args))
-                  -1)
-              (string-trim (buffer-string)))))
+  Returns (STATUS . OUTPUT) when it is done, where STATUS is the returned error
+  code of the process and OUTPUT is its stdout output."
+    (with-temp-buffer
+      (cons (or (apply #'call-process command nil t nil (remq nil args))
+                -1)
+            (string-trim (buffer-string)))))
 
-  (defun generate-env-file ()
-    (interactive)
-    (let* ((path (expand-file-name "env.el"
-                                   (concat user-emacs-directory "/lisp")))
-           (command (format "emacs --batch -l '%s'" path)))
-      (message
-       (prin1-to-string
-        (doom-call-process "zsh" "-lic" command)))))
+(defun generate-env-file ()
+  (interactive)
+  (let* ((path (expand-file-name "env.el"
+                                 (concat user-emacs-directory "/lisp")))
+         (command (format "emacs --batch -l '%s'" path)))
+    (message
+     (prin1-to-string
+      (doom-call-process "zsh" "-lic" command)))))
 
-  ;; 从文件中加载环境变量
-  (defun doom-load-envvars-file (file &optional noerror)
-    "Read and set envvars from FILE.
-  If NOERROR is non-nil, don't throw an error if the file doesn't exist or is
-  unreadable. Returns the names of envvars that were changed."
-    (if (null (file-exists-p file))
-        (unless noerror
-          (signal 'file-error (list "No envvar file exists" file)))
-      (with-temp-buffer
-        (insert-file-contents file)
-        (when-let (env (read (current-buffer)))
-          (let ((tz (getenv-internal "TZ")))
-            (setq-default
-             process-environment
-             (append env (default-value 'process-environment))
-             exec-path
-             (append (split-string (getenv "PATH") path-separator t)
-                     (list exec-directory))
-             shell-file-name
-             (or (getenv "SHELL")
-                 (default-value 'shell-file-name)))
-            (when-let (newtz (getenv-internal "TZ"))
-              (unless (equal tz newtz)
-                (set-time-zone-rule newtz))))
-          env))))
-  (doom-load-envvars-file env-file)
+;; 从文件中加载环境变量
+(defun doom-load-envvars-file (file &optional noerror)
+  "Read and set envvars from FILE.
+If NOERROR is non-nil, don't throw an error if the file doesn't exist or is
+unreadable. Returns the names of envvars that were changed."
+  (if (null (file-exists-p file))
+      (unless noerror
+        (signal 'file-error (list "No envvar file exists" file)))
+    (with-temp-buffer
+      (insert-file-contents file)
+      (when-let (env (read (current-buffer)))
+        (let ((tz (getenv-internal "TZ")))
+          (setq-default
+           process-environment
+           (append env (default-value 'process-environment))
+           exec-path
+           (append (split-string (getenv "PATH") path-separator t)
+                   (list exec-directory))
+           shell-file-name
+           (or (getenv "SHELL")
+               (default-value 'shell-file-name)))
+          (when-let (newtz (getenv-internal "TZ"))
+            (unless (equal tz newtz)
+              (set-time-zone-rule newtz))))
+        env))))
+(doom-load-envvars-file env-file)
 #+end_src
 
 
 ** Basic config
 #+begin_src elisp :tangle yes
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (setq default-buffer-file-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
 
-  (setq ring-bell-function 'ignore)
-  (setq inhibit-startup-screen t)
+(setq ring-bell-function 'ignore)
+(setq inhibit-startup-screen t)
 
-  ;; no file backup
-  (setq make-backup-files nil)
+;; no file backup
+(setq make-backup-files nil)
 
-  ;; 自动补全括号
-  (electric-pair-mode t)
+;; 自动补全括号
+(electric-pair-mode t)
 
-  ;; make ibuffer default
-  (defalias 'list-buffers 'ibuffer)
+;; make ibuffer default
+(defalias 'list-buffers 'ibuffer)
 
-  ;; 自动刷新 buffer
-  (global-auto-revert-mode t)
+;; 自动刷新 buffer
+(global-auto-revert-mode t)
 
-  ;; 选中文本后输入会替换文本
-  (delete-selection-mode t)
+;; 选中文本后输入会替换文本
+(delete-selection-mode t)
 
-  (setq-default tab-width 4
-		indent-tabs-mode nil)
+(setq-default tab-width 4
+indent-tabs-mode nil)
 
-  ;; 高亮括号
-  (add-hook 'prog-mode-hook #'show-paren-mode)
+;; 高亮括号
+(add-hook 'prog-mode-hook #'show-paren-mode)
 
-  ;; 折叠代码
-  (add-hook 'prog-mode-hook #'hs-minor-mode)
+;; 折叠代码
+(add-hook 'prog-mode-hook #'hs-minor-mode)
 #+end_src
 
 
 ** Utils
 #+begin_src elisp :tangle yes
-  (defun mp-elisp-mode-eval-buffer ()
-    (interactive)
-    (message "Evaluated buffer")
-    (eval-buffer))
+(defun mp-elisp-mode-eval-buffer ()
+  (interactive)
+  (message "Evaluated buffer")
+  (eval-buffer))
 
-  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
-  (define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+(define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+(define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
 
-  (defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
 
 ** UI config
 *** Basic UI
 #+begin_src elisp :tangle yes
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
-  (set-frame-width (selected-frame) 180)
-  (set-frame-height (selected-frame) 60)
+(set-frame-width (selected-frame) 180)
+(set-frame-height (selected-frame) 60)
 
-  (global-display-line-numbers-mode t)
+(global-display-line-numbers-mode t)
 
-  ;; 相对行数方便跨行操作计数
-  (setq display-line-numbers-type 'relative)
+;; 相对行数方便跨行操作计数
+(setq display-line-numbers-type 'relative)
 
-  ;; turn on good-scroll
-  (good-scroll-mode 1)
+;; turn on good-scroll
+(good-scroll-mode 1)
 #+end_src
 
 *** smart-mode-line
 #+begin_src elisp :tangle yes
-  (require 'smart-mode-line)
+(require 'smart-mode-line)
 
-  (setq sml/no-confirm-load-theme t)
-  (setq rm-blacklist
-    (format "^ \\(%s\\)$"
-     (mapconcat #'identity
-      '("Projectile.*" "company.*"  "Undo-Tree" "counsel" "ivy" "yas" "WK")
-       "\\|")))
-  (sml/setup)
-  (sml/apply-theme 'respectful)
+(setq sml/no-confirm-load-theme t)
+(setq rm-blacklist
+  (format "^ \\(%s\\)$"
+   (mapconcat #'identity
+    '("Projectile.*" "company.*"  "Undo-Tree" "counsel" "ivy" "yas" "WK")
+     "\\|")))
+(sml/setup)
+(sml/apply-theme 'respectful)
 #+end_src
 
 *** Themes
 #+begin_src elisp :tangle yes
-  (require 'modus-themes)
-  (load-theme 'modus-operandi :no-confirm)
+(require 'modus-themes)
+(load-theme 'modus-operandi :no-confirm)
 #+end_src
 
 *** Icons
 #+begin_src elisp :tangle yes
-  (when (display-graphic-p)
-    (require 'all-the-icons))
+(when (display-graphic-p)
+  (require 'all-the-icons))
 #+end_src
 
 *** Fonts
 #+begin_src elisp :tangle yes
-  (defun set-font (english chinese english-size chinese-size)
-    "set chinese, english font and size"
-    (set-face-attribute 'default nil :font
-			(format "%s:pixelsize=%d"  english english-size))
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font) charset
-			 (font-spec :family chinese :size chinese-size))))
+(defun set-font (english chinese english-size chinese-size)
+  "set chinese, english font and size"
+  (set-face-attribute 'default nil :font
+(format "%s:pixelsize=%d"  english english-size))
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font (frame-parameter nil 'font) charset
+ (font-spec :family chinese :size chinese-size))))
 
-  (add-to-list 'after-make-frame-functions
-	     (lambda (new-frame)
-	       (select-frame new-frame)
-	       (when (display-graphic-p)
-		 (set-font "Sarasa Mono CL" "Sarasa Mono CL" 13 13))))
+(add-to-list 'after-make-frame-functions
+     (lambda (new-frame)
+       (select-frame new-frame)
+       (when (display-graphic-p)
+ (set-font "Sarasa Mono CL" "Sarasa Mono CL" 13 13))))
 
-  (when (display-graphic-p)
-      (set-font "Sarasa Mono CL" "Sarasa Mono CL" 13 13))
+(when (display-graphic-p)
+    (set-font "Sarasa Mono CL" "Sarasa Mono CL" 13 13))
 #+end_src
 
 *** rainbow-delimiters
 #+begin_src elisp :tangle yes
-  (require 'rainbow-delimiters)
-  (add-hook 'prog-mod-hook 'rainbow-delimiters-mode)
+(require 'rainbow-delimiters)
+(add-hook 'prog-mod-hook 'rainbow-delimiters-mode)
 #+end_src
 
 
 * Evil Mode
 #+begin_src elisp :tangle yes
-  (require 'evil)
-  (require 'evil-surround)
-  (require 'evil-visualstar)
+(require 'evil)
+(require 'evil-surround)
+(require 'evil-visualstar)
 
-  (evil-mode 1)
-  (global-evil-visualstar-mode 1)
-  (global-evil-surround-mode 1)
+(evil-mode 1)
+(global-evil-visualstar-mode 1)
+(global-evil-surround-mode 1)
 
-  (with-eval-after-load 'evil-maps (define-key evil-motion-state-map (kbd "TAB") nil))
+(with-eval-after-load 'evil-maps (define-key evil-motion-state-map (kbd "TAB") nil))
 
-  (setq evil-want-C-i-jump nil)
+(setq evil-want-C-i-jump nil)
 
-  (evil-set-undo-system 'undo-redo)
+(evil-set-undo-system 'undo-redo)
 
-  ;; Store more undo history to prevent loss of data
-  (setq undo-limit 8000000
-        undo-strong-limit 8000000
-        undo-outer-limit 8000000)
+;; Store more undo history to prevent loss of data
+(setq undo-limit 8000000
+      undo-strong-limit 8000000
+      undo-outer-limit 8000000)
 
-  ;; {{ @see https://github.com/timcharper/evil-surround for tutorial
-  (run-with-idle-timer 2 nil #'global-evil-surround-mode)
-  (with-eval-after-load 'evil-surround
-  (defun evil-surround-prog-mode-hook-setup ()
-    "Set up surround shortcuts."
-    (cond
-     ((memq major-mode '(sh-mode))
-      (push '(?$ . ("$(" . ")")) evil-surround-pairs-alist))
-     (t
-      (push '(?$ . ("${" . "}")) evil-surround-pairs-alist)))
+;; {{ @see https://github.com/timcharper/evil-surround for tutorial
+(run-with-idle-timer 2 nil #'global-evil-surround-mode)
+(with-eval-after-load 'evil-surround
+(defun evil-surround-prog-mode-hook-setup ()
+  "Set up surround shortcuts."
+  (cond
+   ((memq major-mode '(sh-mode))
+    (push '(?$ . ("$(" . ")")) evil-surround-pairs-alist))
+   (t
+    (push '(?$ . ("${" . "}")) evil-surround-pairs-alist)))
 
-    (when (memq major-mode '(org-mode))
-      (push '(?\[ . ("[[" . "]]")) evil-surround-pairs-alist)
-      (push '(?= . ("=" . "=")) evil-surround-pairs-alist))
+  (when (memq major-mode '(org-mode))
+    (push '(?\[ . ("[[" . "]]")) evil-surround-pairs-alist)
+    (push '(?= . ("=" . "=")) evil-surround-pairs-alist))
 
-    (when (memq major-mode '(emacs-lisp-mode))
-      (push '(?\( . ("( " . ")")) evil-surround-pairs-alist)
-      (push '(?` . ("`" . "'")) evil-surround-pairs-alist))
+  (when (memq major-mode '(emacs-lisp-mode))
+    (push '(?\( . ("( " . ")")) evil-surround-pairs-alist)
+    (push '(?` . ("`" . "'")) evil-surround-pairs-alist))
 
-    (when (or (derived-mode-p 'js-mode)
-              (memq major-mode '(typescript-mode web-mode)))
-      (push '(?j . ("JSON.stringify(" . ")")) evil-surround-pairs-alist)
-      (push '(?> . ("(e) => " . "(e)")) evil-surround-pairs-alist))
+  (when (or (derived-mode-p 'js-mode)
+            (memq major-mode '(typescript-mode web-mode)))
+    (push '(?j . ("JSON.stringify(" . ")")) evil-surround-pairs-alist)
+    (push '(?> . ("(e) => " . "(e)")) evil-surround-pairs-alist))
 
-      ;; generic
-      (push '(?/ . ("/" . "/")) evil-surround-pairs-alist))
-    (add-hook 'prog-mode-hook 'evil-surround-prog-mode-hook-setup))
-  ;; }}
+    ;; generic
+    (push '(?/ . ("/" . "/")) evil-surround-pairs-alist))
+  (add-hook 'prog-mode-hook 'evil-surround-prog-mode-hook-setup))
+;; }}
 
-  ;; {{ For example, press `viW*`
-  (setq evil-visualstar/persistent t)
-  (run-with-idle-timer 2 nil #'global-evil-visualstar-mode)
-  ;; }}
+;; {{ For example, press `viW*`
+(setq evil-visualstar/persistent t)
+(run-with-idle-timer 2 nil #'global-evil-visualstar-mode)
+;; }}
 #+end_src
 
 
@@ -288,133 +335,133 @@
 ** General
 *** which-key
 #+begin_src elisp :tangle yes
-  (require 'which-key)
-  (which-key-mode)
+(require 'which-key)
+(which-key-mode)
 #+end_src
 
 *** fly-check
 #+begin_src elisp :tangle yes
-  (require 'flycheck)
-  (setq truncate-lines nil)
-  (add-hook 'prog-mode-hook 'flycheck-mode)
+(require 'flycheck)
+(setq truncate-lines nil)
+(add-hook 'prog-mode-hook 'flycheck-mode)
 #+end_src
 
 *** ace-window
 #+begin_src elisp :tangle yes
-  ;; ace-window
-  (require 'ace-window)
-  (global-set-key (kbd "M-o") 'ace-window)
+;; ace-window
+(require 'ace-window)
+(global-set-key (kbd "M-o") 'ace-window)
 #+end_src
 
 *** amx
 #+begin_src elisp :tangle yes
-  (require 'amx)
-  (amx-mode)
+(require 'amx)
+(amx-mode)
 #+end_src
 
 *** mwim
 #+begin_src elisp :tangle yes
-  (require 'mwim)
-  (global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line)
-  (global-set-key (kbd "C-e") 'mwim-end-of-code-or-line)
+(require 'mwim)
+(global-set-key (kbd "C-a") 'mwim-beginning-of-code-or-line)
+(global-set-key (kbd "C-e") 'mwim-end-of-code-or-line)
 #+end_src
 
 *** marginalia
 Adds marginalia to the minibuffer completions.
 
 #+begin_src elisp :tangle yes
-  (require 'marginalia)
-  (marginalia-mode)
-  (add-hook 'marginalia-mode-hook
-	    (lambda ()
-	      (keymap-set minibuffer-local-map
-			  "M-a" 'marginalia-cycle)))
+(require 'marginalia)
+(marginalia-mode)
+(add-hook 'marginalia-mode-hook
+   (lambda ()
+     (keymap-set minibuffer-local-map
+	  "M-a" 'marginalia-cycle)))
 #+end_src
 
 *** highlight-symbol
 #+begin_src elisp :tangle yes
-  (require 'highlight-symbol)
-  (highlight-symbol-mode 1)
-  (global-set-key (kbd "<f3>") 'highlight-symbol)
+(require 'highlight-symbol)
+(highlight-symbol-mode 1)
+(global-set-key (kbd "<f3>") 'highlight-symbol)
 #+end_src
 
 
 ** Ivy Mode
 *** ivy
 #+begin_src elisp :tangle yes
-  (require 'ivy)
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-initial-inputs-alist nil)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq enable-recursive-minibuffers t)
-  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-  (setq search-default-mode #'char-fold-to-regexp)
+(require 'ivy)
+(setq ivy-use-virtual-buffers t)
+(setq ivy-initial-inputs-alist nil)
+(setq ivy-count-format "(%d/%d) ")
+(setq enable-recursive-minibuffers t)
+(setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+(setq search-default-mode #'char-fold-to-regexp)
 
-  ;; ivy KBD
-  (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-  (global-set-key (kbd "C-c v") 'ivy-push-view)
-  (global-set-key (kbd "C-c s") 'ivy-switch-view)
-  (global-set-key (kbd "C-c V") 'ivy-pop-view)
+;; ivy KBD
+(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+(global-set-key (kbd "C-c v") 'ivy-push-view)
+(global-set-key (kbd "C-c s") 'ivy-switch-view)
+(global-set-key (kbd "C-c V") 'ivy-pop-view)
 
-  (add-hook 'after-init-hook 'ivy-mode)
+(add-hook 'after-init-hook 'ivy-mode)
 #+end_src
 
 *** counsel
 #+begin_src elisp :tangle yes
-  ;; counsel KBD
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "C-x C-SPC") 'counsel-mark-ring)
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "C-c f") 'counsel-recentf)
-  (global-set-key (kbd "C-c g") 'counsel-git)
-  (global-set-key (kbd "C-c j") 'counsel-git-grep)
-  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+;; counsel KBD
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-SPC") 'counsel-mark-ring)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "C-c f") 'counsel-recentf)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 #+end_src
 
 *** swiper
 #+begin_src elisp :tangle yes
-  (setq swiper-action-recentf t)
-  (setq swiper-include-line-number-in-search t)
+(setq swiper-action-recentf t)
+(setq swiper-include-line-number-in-search t)
 
-  ;; swiper KBD
-  (global-set-key (kbd "C-s") 'swiper)
-  (global-set-key (kbd "C-r") 'swiper-isearch-backward)
+;; swiper KBD
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-r") 'swiper-isearch-backward)
 #+end_src
 
 
 ** Company Mode
 *** company
 #+begin_src elisp :tangle yes
-  (require 'company)
-  (global-company-mode)
-  (setq company-minimum-prefix-length 1)
-  (setq company-selection-wrap-around t)
-  (setq company-show-quick-access t)
-  (setq company-backends '(company-capf company-files company-keywords))
-  (setq company-idle-delay 0.2)
-  (setq company-transformers '(company-sort-by-occurrence))
+(require 'company)
+(global-company-mode)
+(setq company-minimum-prefix-length 1)
+(setq company-selection-wrap-around t)
+(setq company-show-quick-access t)
+(setq company-backends '(company-capf company-files company-keywords))
+(setq company-idle-delay 0.2)
+(setq company-transformers '(company-sort-by-occurrence))
 #+end_src
 
 *** company-box
 #+begin_src elisp :tangle yes
-  (require 'company-box)
-  (add-hook 'company-mode-hook 'company-box-mode)
+(require 'company-box)
+(add-hook 'company-mode-hook 'company-box-mode)
 #+end_src
 
 
 ** Undo Tree
 #+begin_src elisp :tangle yes
-  (require 'undo-tree)
-  (global-undo-tree-mode 1)
-  (setq undo-tree-auto-save-history nil)
+(require 'undo-tree)
+(global-undo-tree-mode 1)
+(setq undo-tree-auto-save-history nil)
 #+end_src
 
 
 ** Multiple Cursors
 #+begin_src elisp :tangle yes
-  (require 'multiple-cursors)
+(require 'multiple-cursors)
 
-  (global-set-key (kbd "C-S-<mouse-1>") 'mc/toggle-cursor-on-click)
+(global-set-key (kbd "C-S-<mouse-1>") 'mc/toggle-cursor-on-click)
 #+end_src
 
 
@@ -422,130 +469,130 @@ Adds marginalia to the minibuffer completions.
 ** Yasnippet
 *** yasnippet
 #+begin_src elisp :tangle yes
-  (require 'yasnippet)
+(require 'yasnippet)
 
-  (yas-reload-all)
+(yas-reload-all)
 
-  (defun company-mode/backend-with-yas (backend)
-    (if (and (listp backend) (member 'company-yasnippet backend))
-     backend
-     (append (if (consp backend) backend (list backend))
-	  '(:with company-yasnippet))))
-  (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+(defun company-mode/backend-with-yas (backend)
+  (if (and (listp backend) (member 'company-yasnippet backend))
+   backend
+   (append (if (consp backend) backend (list backend))
+  '(:with company-yasnippet))))
+(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
 
-  (add-hook 'prog-mode-hook 'yas-minor-mode)
-  (add-hook 'yas-minor-mode-hook
-	    (lambda ()
-	      ;; unbind <TAB> completion
-	      (define-key yas-minor-mode-map [(tab)]    nil)
-	      (define-key yas-minor-mode-map (kbd "TAB")  nil)
-	      (define-key yas-minor-mode-map (kbd "<tab>") nil)
-	      (keymap-set yas-minor-mode-map "S-<tab>" 'yas-expand)))
+(add-hook 'prog-mode-hook 'yas-minor-mode)
+(add-hook 'yas-minor-mode-hook
+   (lambda ()
+     ;; unbind <TAB> completion
+     (define-key yas-minor-mode-map [(tab)]    nil)
+     (define-key yas-minor-mode-map (kbd "TAB")  nil)
+     (define-key yas-minor-mode-map (kbd "<tab>") nil)
+     (keymap-set yas-minor-mode-map "S-<tab>" 'yas-expand)))
 #+end_src
 *** yasnippet-snippets
 #+begin_src elisp :tangle yes
-  (require 'yasnippet-snippets)
+(require 'yasnippet-snippets)
 #+end_src
 
 
 ** Project Management
 *** projectile
 #+begin_src elisp :tangle yes
-  (require 'projectile)
+(require 'projectile)
 
-  (setq projectile-mode-line "Projectile")
-  (setq projectile-track-known-projects-automatically nil)
+(setq projectile-mode-line "Projectile")
+(setq projectile-track-known-projects-automatically nil)
 
-  (global-set-key (kbd "C-c p") 'projectile-command-map)
+(global-set-key (kbd "C-c p") 'projectile-command-map)
 #+end_src
 
 *** counsel-projectile
 #+begin_src elisp :tangle yes
-  (require 'counsel-projectile)
-  (counsel-projectile-mode)
+(require 'counsel-projectile)
+(counsel-projectile-mode)
 #+end_src
 
 *** treemacs
 #+begin_src elisp :tangle yes
-  (require 'treemacs)
+(require 'treemacs)
 
-  ;; 配置 treemacs
-  (with-eval-after-load 'treemacs
-    (treemacs-tag-follow-mode))
+;; 配置 treemacs
+(with-eval-after-load 'treemacs
+  (treemacs-tag-follow-mode))
 
-  ;; 全局快捷键绑定
-  (global-set-key (kbd "M-0")  #'treemacs-select-window)
-  (global-set-key (kbd "C-x t 1") #'treemacs-delete-other-windows)
-  (global-set-key (kbd "C-x t t") #'treemacs)
-  (global-set-key (kbd "C-x t B") #'treemacs-bookmark)
-  (global-set-key (kbd "C-x t M-t") #'treemacs-find-tag)
+;; 全局快捷键绑定
+(global-set-key (kbd "M-0")  #'treemacs-select-window)
+(global-set-key (kbd "C-x t 1") #'treemacs-delete-other-windows)
+(global-set-key (kbd "C-x t t") #'treemacs)
+(global-set-key (kbd "C-x t B") #'treemacs-bookmark)
+(global-set-key (kbd "C-x t M-t") #'treemacs-find-tag)
 
-  ;; treemacs-mode-map 快捷键绑定
-  (with-eval-after-load 'treemacs
-    (define-key treemacs-mode-map (kbd "/") #'treemacs-advanced-helpful-hydra))
+;; treemacs-mode-map 快捷键绑定
+(with-eval-after-load 'treemacs
+  (define-key treemacs-mode-map (kbd "/") #'treemacs-advanced-helpful-hydra))
 #+end_src
 
 
 ** LSP
 *** lsp-mode
 #+begin_src elisp :tangle yes
-  (require 'lsp-mode)
-  (require 'lsp-ui)
-  (require 'lsp-ivy)
+(require 'lsp-mode)
+(require 'lsp-ui)
+(require 'lsp-ivy)
 
-  (autoload 'lsp "lsp-mode" "" t)
-  (autoload 'lsp-deferred "lsp-mode" "" t)
-  (autoload 'lsp-ui-mode "lsp-ui" "" t)
-  (autoload 'lsp-ivy-workspace-symbol "lsp-ivy" "")
+(autoload 'lsp "lsp-mode" "" t)
+(autoload 'lsp-deferred "lsp-mode" "" t)
+(autoload 'lsp-ui-mode "lsp-ui" "" t)
+(autoload 'lsp-ivy-workspace-symbol "lsp-ivy" "")
 
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c l")
-  (setq lsp-file-watch-threshold 500)
-  (setq lsp-prefer-flymake nil
-     lsp-keep-workspace-alive nil
-     lsp-enable-indentation nil
-     lsp-enable-on-type-formatting nil
-     lsp-auto-guess-root nil
-     lsp-enable-snippet t)
+;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+(setq lsp-keymap-prefix "C-c l")
+(setq lsp-file-watch-threshold 500)
+(setq lsp-prefer-flymake nil
+   lsp-keep-workspace-alive nil
+   lsp-enable-indentation nil
+   lsp-enable-on-type-formatting nil
+   lsp-auto-guess-root nil
+   lsp-enable-snippet t)
 
-  (setq lsp-completion-provider :none)
-  (setq lsp-headerline-breadcrumb-enable t)
+(setq lsp-completion-provider :none)
+(setq lsp-headerline-breadcrumb-enable t)
 
-  (add-hook 'c-mode-hook #'lsp-deferred)
-  (add-hook 'go-mode-hook #'lsp-deferred)
-  (add-hook 'java-mode-hook #'lsp-deferred)
-  (add-hook 'js-mode-hook #'lsp-deferred)
-  (add-hook 'python-mode-hook #'lsp-deferred)
-  (add-hook 'web-mode-hook #'lsp-deferred)
-  (add-hook 'html-mode-hook #'lsp-deferred)
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+(add-hook 'c-mode-hook #'lsp-deferred)
+(add-hook 'go-mode-hook #'lsp-deferred)
+(add-hook 'java-mode-hook #'lsp-deferred)
+(add-hook 'js-mode-hook #'lsp-deferred)
+(add-hook 'python-mode-hook #'lsp-deferred)
+(add-hook 'web-mode-hook #'lsp-deferred)
+(add-hook 'html-mode-hook #'lsp-deferred)
+(add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-  (global-set-key (kbd "C-c l s") #'lsp-ivy-workspace-symbol)
+(global-set-key (kbd "C-c l s") #'lsp-ivy-workspace-symbol)
 #+end_src
 
 
 ** Golang
 #+begin_src elisp :tangle yes
-  (require 'go-mode)
-  
-  (defun lsp-go-install-save-hooks ()
-    (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(require 'go-mode)
 
-  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 #+end_src
 
 
 ** Haskell
 #+begin_src elisp :tangle yes
-  (require 'haskell-mode)
+(require 'haskell-mode)
 #+end_src
 
 
 ** Scheme
 #+begin_src elisp :tangle yes
-  (require 'geiser)
-  (require 'geiser-guile)
+(require 'geiser)
+(require 'geiser-guile)
 #+end_src
 
 
@@ -554,32 +601,32 @@ Adds marginalia to the minibuffer completions.
 ** Python
 *** python-mode
 #+begin_src elisp :tangle yes
-  (require 'python)
+(require 'python)
 
-  (add-to-list 'auto-mode-alist
-               '("\\.py\\'" . python-mode))
+(add-to-list 'auto-mode-alist
+             '("\\.py\\'" . python-mode))
 
-  (setq python-shell-interpreter "python3")
+(setq python-shell-interpreter "python3")
 #+end_src
 
 *** pyvenv
 #+begin_src elisp :tangle yes
-  (require 'pyvenv)
+(require 'pyvenv)
 
-  (add-hook 'python-mode-hook 'pyvenv-mode)
+(add-hook 'python-mode-hook 'pyvenv-mode)
 #+end_src
 
 *** poetry
 #+begin_src elisp :tangle yes
-  (require 'poetry)
+(require 'poetry)
 #+end_src
 
 *** lsp-pyright
 #+begin_src elisp :tangle yes
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (require 'lsp-pyright)
-              (lsp-deferred)))
+(add-hook 'python-mode-hook
+          (lambda ()
+            (require 'lsp-pyright)
+            (lsp-deferred)))
 #+end_src
 
 
@@ -587,228 +634,274 @@ Adds marginalia to the minibuffer completions.
 * Org Mode
 ** Org
 #+begin_src elisp :tangle yes
-  (require 'org)
-  (require 'org-modern)
+(require 'org)
+(require 'org-modern)
 
-  (dolist (face '(window-divider
-                  window-divider-first-pixel
-                  window-divider-last-pixel))
-    (face-spec-reset-face face)
-    (set-face-foreground face (face-attribute 'default :background)))
-  (set-face-background 'fringe (face-attribute 'default :background))
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+(set-face-background 'fringe (face-attribute 'default :background))
 
-  (with-eval-after-load 'org
-    (defvar org-agenda-dir "gtd org files location")
-    (setq-default org-agenda-dir "/Users/kylefeng/development/org")
+(with-eval-after-load 'org
+  (defvar org-agenda-dir "gtd org files location")
+  (setq-default org-agenda-dir (file-truename "~/development/org"))
 
-    ;; Choose some fonts
-    (set-face-attribute 'default nil :family "Iosevka")
-    (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
-    (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+  ;; Choose some fonts
+  (set-face-attribute 'default nil :family "Iosevka")
+  (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+  (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
 
-    (setq
-      ;; Edit settings
-      org-tags-column 0 
-      org-fold-catch-invisible-edits 'show-and-error
-      org-starup-indented t
-      org-auto-align-tags nil
-      org-special-ctrl-a/e t
-      org-insert-heading-respect-content t
+  (setq
+    ;; Edit settings
+    org-tags-column 0 
+    org-fold-catch-invisible-edits 'show-and-error
+    org-starup-indented t
+    org-auto-align-tags nil
+    org-special-ctrl-a/e t
+    org-insert-heading-respect-content t
 
-      ;; Org styling, hide markup etc.
-      org-hide-emphasis-markers t
-      org-pretty-entities t
+    ;; Org styling, hide markup etc.
+    org-hide-emphasis-markers t
+    org-pretty-entities t
 
-      ;; Agenda styling
-      org-agenda-tags-column 0
-      org-agenda-block-separator ?─
-      org-agenda-time-grid
-      '((daily today require-timed)
-        (800 1000 1200 1400 1600 1800 2000)
-        " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+    ;; Agenda styling
+    org-agenda-tags-column 0
+    org-agenda-block-separator ?─
+    org-agenda-time-grid
+    '((daily today require-timed)
+      (800 1000 1200 1400 1600 1800 2000)
+      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
 
-      org-agenda-current-time-string
-      "<- now ─────────────────────────────────────────────────"
+    org-agenda-current-time-string
+    "<- now ─────────────────────────────────────────────────"
 
-      org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c @/!)"))
+    org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c @/!)"))
 
-      ;; agenda files
-      org-agenda-files '(org-agenda-dir))
+    ;; agenda files
+    org-agenda-files '(org-agenda-dir)
 
-    ;; Ellipsis styling
-    (setq org-ellipsis "…")
-    (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
+    org-image-actual-width 600
+    org-edit-src-content-indentation 0
+    )
 
-    (setq org-agenda-file-note (expand-file-name "notes.org" org-agenda-dir))
-    (setq org-agenda-file-task (expand-file-name "task.org" org-agenda-dir))
-    (setq org-agenda-file-calendar (expand-file-name "calendar.org" org-agenda-dir))
-    (setq org-agenda-file-finished (expand-file-name "finished.org" org-agenda-dir))
-    (setq org-agenda-file-canceled (expand-file-name "canceled.org" org-agenda-dir))
+  ;; Ellipsis styling
+  (setq org-ellipsis "…")
+  (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 
-    (setq org-capture-templates
-      '(
-     ("t" "Todo" entry (file+headline org-agenda-file-task "Work")
-       "* TODO [#B] %?\n  %i\n"
-       :empty-lines 1)
-      ("l" "Tolearn" entry (file+headline org-agenda-file-task "Learning")
-        "* TODO [#B] %?\n  %i\n"
-        :empty-lines 1)
-      ("h" "Toplay" entry (file+headline org-agenda-file-task "Hobbies")
-        "* TODO [#C] %?\n  %i\n"
-        :empty-lines 1)
-      ("I" "Inbox" entry (file+headline org-agenda-file-task "Inbox")
-        "* TODO [#C] %?\n  %i\n"
-        :empty-lines 1)
-      ("o" "Todo_others" entry (file+headline org-agenda-file-task "Others")
-        "* TODO [#C] %?\n  %i\n"
-        :empty-lines 1)
-      ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
-        "* %?\n  %i\n %U"
-        :empty-lines 1)
-      ("i" "ideas" entry (file+headline org-agenda-file-note "Quick ideas")
-        "* %?\n  %i\n %U"
-        :empty-lines 1)
-      ))
+  (setq org-agenda-file-note (expand-file-name "notes.org" org-agenda-dir))
+  (setq org-agenda-file-task (expand-file-name "task.org" org-agenda-dir))
+  (setq org-agenda-file-calendar (expand-file-name "calendar.org" org-agenda-dir))
+  (setq org-agenda-file-finished (expand-file-name "finished.org" org-agenda-dir))
+  (setq org-agenda-file-canceled (expand-file-name "canceled.org" org-agenda-dir))
 
-    (setq org-agenda-custom-commands
-      '(
-    ("w" . "任务安排")
-    ("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
-    ("wb" "重要且不紧急的任务" tags-todo "-weekly-monthly-daily+PRIORITY=\"B\"")
-    ("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
-    ("W" "Weekly Review"
-     ((stuck "") ;; review stuck projects as designated by org-stuck-projects
-      (tags-todo "daily")
-      (tags-todo "weekly")
-      (tags-todo "work")
-      (tags-todo "blog")
-      (tags-todo "book")
-      ))
+  (setq org-capture-templates
+    '(
+   ("t" "Todo" entry (file+headline org-agenda-file-task "Work")
+     "* TODO [#B] %?\n  %i\n"
+     :empty-lines 1)
+    ("l" "Tolearn" entry (file+headline org-agenda-file-task "Learning")
+      "* TODO [#B] %?\n  %i\n"
+      :empty-lines 1)
+    ("h" "Toplay" entry (file+headline org-agenda-file-task "Hobbies")
+      "* TODO [#C] %?\n  %i\n"
+      :empty-lines 1)
+    ("I" "Inbox" entry (file+headline org-agenda-file-task "Inbox")
+      "* TODO [#C] %?\n  %i\n"
+      :empty-lines 1)
+    ("o" "Todo_others" entry (file+headline org-agenda-file-task "Others")
+      "* TODO [#C] %?\n  %i\n"
+      :empty-lines 1)
+    ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
+      "* %?\n  %i\n %U"
+      :empty-lines 1)
+    ("i" "ideas" entry (file+headline org-agenda-file-note "Quick ideas")
+      "* %?\n  %i\n %U"
+      :empty-lines 1)
     ))
 
-    (setq org-refile-targets  '((org-agenda-file-finished :maxlevel . 1)
-                (org-agenda-file-note :maxlevel . 1)
-                (org-agenda-file-canceled :maxlevel . 1)
-                 (org-agenda-file-task :maxlevel . 1))))
+  (setq org-agenda-custom-commands
+    '(
+  ("w" . "任务安排")
+  ("wa" "重要且紧急的任务" tags-todo "+PRIORITY=\"A\"")
+  ("wb" "重要且不紧急的任务" tags-todo "-weekly-monthly-daily+PRIORITY=\"B\"")
+  ("wc" "不重要且紧急的任务" tags-todo "+PRIORITY=\"C\"")
+  ("W" "Weekly Review"
+   ((stuck "") ;; review stuck projects as designated by org-stuck-projects
+    (tags-todo "daily")
+    (tags-todo "weekly")
+    (tags-todo "work")
+    (tags-todo "blog")
+    (tags-todo "book")
+    ))
+  ))
 
-  (with-eval-after-load 'org (global-org-modern-mode))
+  (setq org-refile-targets  '((org-agenda-file-finished :maxlevel . 1)
+              (org-agenda-file-note :maxlevel . 1)
+              (org-agenda-file-canceled :maxlevel . 1)
+               (org-agenda-file-task :maxlevel . 1))))
 
-  (defun org-insert-image ()
-    (interactive)
-    (let* ((buffer-name (buffer-name))
-           (path (concat default-directory "images/"))
-           (image-dir (concat path buffer-name "/"))
-           (image-file (concat image-dir
-                               (format-time-string "%Y%m%d_%H%M%S.png")))
-           (counter 1))
-      ;; 如果不存在 images 目录则创建
-      (if (not (file-exists-p path))
-          (mkdir path))
+(with-eval-after-load 'org (global-org-modern-mode))
 
-      ;; 如果 buffer 名称目录已存在，则递增计数直到找到可用的目录名
-      (while (file-exists-p image-dir)
-        (setq image-dir (concat path buffer-name "_" (number-to-string counter) "/"))
-        (setq counter (1+ counter)))
+(defun org-insert-image ()
+  (interactive)
+  (let* ((buffer-name (buffer-name))
+         (path (concat default-directory "images/"))
+         (image-dir (concat path buffer-name "/"))
+         (image-file (concat image-dir
+                             (format-time-string "%Y%m%d_%H%M%S.png")))
+         (counter 1))
+    ;; 如果不存在 images 目录则创建
+    (if (not (file-exists-p path))
+        (mkdir path))
 
-      ;; 创建最终的图像目录
-      (mkdir image-dir)
+    ;; 如果 buffer 名称目录已存在，则递增计数直到找到可用的目录名
+    (while (file-exists-p image-dir)
+      (setq image-dir (concat path buffer-name "_" (number-to-string counter) "/"))
+      (setq counter (1+ counter)))
 
-      ;; 执行 pngpaste 命令并将图像保存到指定目录
-      (shell-command (concat "pngpaste " image-file))
+    ;; 创建最终的图像目录
+    (mkdir image-dir)
 
-      ;; 插入链接
-      (org-insert-link nil (concat "file:" image-file) "")))
+    ;; 执行 pngpaste 命令并将图像保存到指定目录
+    (shell-command (concat "pngpaste " image-file))
+
+    ;; 插入链接
+    (org-insert-link nil (concat "file:" image-file) "")))
 #+end_src
+
+#+RESULTS:
+: org-insert-image
 
 ** Org Roam
 #+begin_src elisp :tangle yes
-  (require 'org-roam)
+;; add extensions
+(add-to-list 'load-path (concat user-emacs-directory "/lib/org-roam/extensions/"))
 
-  (setq org-roam-directory (file-truename "~/org-roam"))
-  (org-roam-db-autosync-mode)
+(require 'org-roam)
+(require 'org-roam-dailies)
 
-  (setq org-roam-node-display-template
-        (concat "${title:*} "
-                (propertize "${tags:10}" 'face 'org-tag)))
+(setq org-roam-mode-sections '(org-roam-backlinks-section
+                               org-roam-reflinks-section))
 
-  (add-to-list 'display-buffer-alist
-               '("\\*org-roam\\*"
-                 (display-buffer-in-side-window)
-                 (side . right)
-                 (slot . 0)
-                 (window-width . 0.33)
-                 (window-height . fit-window-to-buffer)))
+(setq org-roam-directory (file-truename "~/org-roam"))
+(setq org-roam-dailies-directory (file-truename "~/org-roam/dailies"))
+
+(setq org-roam-db-gc-threshold most-positive-fixnum)
+
+
+(setq org-roam-node-display-template
+      (concat "${title:*} "
+              (propertize "${tags:10}" 'face 'org-tag)))
+
+(add-to-list 'display-buffer-alist
+             '("\\*org-roam\\*"
+               (display-buffer-in-side-window)
+               (side . right)
+               (slot . 0)
+               (window-width . 0.33)
+               (window-height . fit-window-to-buffer)))
+
+;; templates
+(setq org-roam-capture-templates '(("m" "main" plain "%?"
+                                    :target
+                                    (file+head "main/%<%Y-%m-%d>-${slug}.org"
+                                           "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
+                                     :unnarrowed t)
+
+                                   ("r" "reference" plain "%?"
+                                    :target
+                                   (file+head "reference/%<%Y-%m-%d>-${slug}.org"
+                                              "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
+                                   :unnarrowed t)
+
+                                   ("a" "article" plain "%?"
+                                    ;; :target
+                                    :if-new
+                                    (file+head "articles/%<%Y-%m-%d>-${slug}.org"
+                                               "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
+                                    :unnarrowed t)))
+
+(global-set-key (kbd "C-c n f") 'org-roam-node-find)
+(global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+(global-set-key (kbd "C-c n c") 'org-roam-capture)
+(global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+(global-set-key (kbd "C-c n u") 'org-roam-ui-mode)
+
+(with-eval-after-load 'org-roam
+  (org-roam-db-autosync-mode))
 #+end_src
 
 
 * Keyboard Bindings
 ** User defined KBD
 #+begin_src elisp :tangle yes
-  (when *is-mac*
-    (setq mac-command-modifier 'meta)
-    (setq mac-option-modifier 'none))
+(when *is-mac*
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'none))
 
-  (defun next-ten-lines ()
-    "Move cursor to next 10 lines."
-    (interactive)
-    (forward-line 10))
+(defun next-ten-lines ()
+  "Move cursor to next 10 lines."
+  (interactive)
+  (forward-line 10))
 
-  (defun previous-ten-lines ()
-    "Move cursor to previous 10 lines."
-    (interactive)
-    (forward-line -10))
+(defun previous-ten-lines ()
+  "Move cursor to previous 10 lines."
+  (interactive)
+  (forward-line -10))
 
-  (global-set-key (kbd "M-W") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
-  (global-set-key (kbd "M-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
-  (global-set-key (kbd "M-n") 'next-ten-lines)
-  (global-set-key (kbd "M-p") 'previous-ten-lines)
+(global-set-key (kbd "M-W") 'kill-region)        ; 交换 M-w 和 C-w，M-w 为剪切
+(global-set-key (kbd "M-w") 'kill-ring-save)     ; 交换 M-w 和 C-w，C-w 为复制
+(global-set-key (kbd "M-n") 'next-ten-lines)
+(global-set-key (kbd "M-p") 'previous-ten-lines)
 #+end_src
 
 
 * Hydra
 ** hydra-undo-tree
 #+begin_src elisp :tangle yes
-  (require 'hydra)
+(require 'hydra)
 
-  (defhydra hydra-undo-tree (:hint nil)
-    "
-    _p_: undo _n_: redo _s_: save _l_: load  "
-    ("p"  undo-tree-undo)
-    ("n"  undo-tree-redo)
-    ("s"  undo-tree-save-history)
-    ("l"  undo-tree-load-history)
-    ("u"  undo-tree-visualize "visualize" :color blue)
-    ("q"  nil "quit" :color blue))
+(defhydra hydra-undo-tree (:hint nil)
+  "
+  _p_: undo _n_: redo _s_: save _l_: load  "
+  ("p"  undo-tree-undo)
+  ("n"  undo-tree-redo)
+  ("s"  undo-tree-save-history)
+  ("l"  undo-tree-load-history)
+  ("u"  undo-tree-visualize "visualize" :color blue)
+  ("q"  nil "quit" :color blue))
 
-  (global-set-key (kbd "C-x C-h u") 'hydra-undo-tree/body)
+(global-set-key (kbd "C-x C-h u") 'hydra-undo-tree/body)
 #+end_src
 
 ** hydra-multiple-cursors
 #+begin_src elisp :tangle yes
-  (defhydra hydra-multiple-cursors (:hint nil)
-    "
-     Up^^          Down^^       Miscellaneous      % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
-    ------------------------------------------------------------------
-    [_p_]  Prev   [_n_]  Next   [_l_] Edit lines [_0_] Insert numbers
-    [_P_]  Skip   [_N_]  Skip   [_a_] Mark all   [_A_] Insert letters
-    [_M-p_] Unmark  [_M-n_] Unmark  [_s_] Search   [_q_] Quit
-    [_|_] Align with input CHAR    [Click] Cursor at point"
-    ("l" mc/edit-lines :exit t)
-    ("a" mc/mark-all-like-this :exit t)
-    ("n" mc/mark-next-like-this)
-    ("N" mc/skip-to-next-like-this)
-    ("M-n" mc/unmark-next-like-this)
-    ("p" mc/mark-previous-like-this)
-    ("P" mc/skip-to-previous-like-this)
-    ("M-p" mc/unmark-previous-like-this)
-    ("|" mc/vertical-align)
-    ("s" mc/mark-all-in-region-regexp :exit t)
-    ("0" mc/insert-numbers :exit t)
+(defhydra hydra-multiple-cursors (:hint nil)
+  "
+   Up^^          Down^^       Miscellaneous      % 2(mc/num-cursors) cursor%s(if (> (mc/num-cursors) 1) \"s\" \"\")
+  ------------------------------------------------------------------
+  [_p_]  Prev   [_n_]  Next   [_l_] Edit lines [_0_] Insert numbers
+  [_P_]  Skip   [_N_]  Skip   [_a_] Mark all   [_A_] Insert letters
+  [_M-p_] Unmark  [_M-n_] Unmark  [_s_] Search   [_q_] Quit
+  [_|_] Align with input CHAR    [Click] Cursor at point"
+  ("l" mc/edit-lines :exit t)
+  ("a" mc/mark-all-like-this :exit t)
+  ("n" mc/mark-next-like-this)
+  ("N" mc/skip-to-next-like-this)
+  ("M-n" mc/unmark-next-like-this)
+  ("p" mc/mark-previous-like-this)
+  ("P" mc/skip-to-previous-like-this)
+  ("M-p" mc/unmark-previous-like-this)
+  ("|" mc/vertical-align)
+  ("s" mc/mark-all-in-region-regexp :exit t)
+  ("0" mc/insert-numbers :exit t)
 
-    ("<mouse-1>" mc/add-cursor-on-click)
-    ;; Help with click recognition in this hydra
-    ("<down-mouse-1>" ignore)
-    ("<drag-mouse-1>" ignore)
-    ("q" nil))
-  (global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
+  ("<mouse-1>" mc/add-cursor-on-click)
+  ;; Help with click recognition in this hydra
+  ("<down-mouse-1>" ignore)
+  ("<drag-mouse-1>" ignore)
+  ("q" nil))
+(global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
 #+end_src
