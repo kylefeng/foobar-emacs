@@ -34,6 +34,9 @@
 [submodule "dash"]
 	path = lib/dash
 	url = https://github.com/magnars/dash.el
+[submodule "dracula-theme"]
+	path = lib/dracula-theme
+	url = https://github.com/dracula/emacs
 [submodule "emacsql"]
 	path = lib/emacsql
 	url = git@github.com:skeeto/emacsql.git
@@ -65,6 +68,9 @@
 [submodule "geiser-guile"]
 	path = lib/geiser-guile
 	url = https://gitlab.com/emacs-geiser/guile
+[submodule "general"]
+	path = lib/general
+	url = https://github.com/noctuid/general.el
 [submodule "go-mode"]
 	path = lib/go-mode
 	url = https://github.com/dominikh/go-mode.el
@@ -134,6 +140,9 @@
 [submodule "org-roam-ui"]
 	path = lib/org-roam-ui
 	url = https://github.com/org-roam/org-roam-ui
+[submodule "org-tidy"]
+	path = lib/org-tidy
+	url = https://github.com/jxq0/org-tidy
 [submodule "pfuture"]
 	path = lib/pfuture
 	url = https://github.com/Alexander-Miller/pfuture
