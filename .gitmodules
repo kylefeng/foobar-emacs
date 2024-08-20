@@ -92,6 +92,9 @@
 [submodule "ivy"]
 	path = lib/ivy
 	url = https://github.com/abo-abo/swiper
+[submodule "keyfreq"]
+	path = lib/keyfreq
+	url = https://github.com/dacap/keyfreq
 [submodule "llama"]
 	path = lib/llama
 	url = https://git.sr.ht/~tarsius/llama
@@ -143,6 +146,9 @@
 [submodule "org-tidy"]
 	path = lib/org-tidy
 	url = https://github.com/jxq0/org-tidy
+[submodule "paredit"]
+	path = lib/paredit
+	url = https://mumble.net/~campbell/git/paredit.git
 [submodule "pfuture"]
 	path = lib/pfuture
 	url = https://github.com/Alexander-Miller/pfuture

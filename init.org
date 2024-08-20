@@ -237,8 +237,8 @@ indent-tabs-mode nil)
 
 *** Themes
 #+begin_src elisp :tangle yes
-(require 'modus-themes)
 (load-theme 'modus-operandi :no-confirm)
+;;(load-theme 'dracula :no-confirm)
 #+end_src
 
 *** Icons
@@ -385,6 +385,17 @@ Adds marginalia to the minibuffer completions.
 (global-set-key (kbd "<f3>") 'highlight-symbol)
 #+end_src
 
+*** general.el
+#+begin_src elisp :tangle yes
+(require 'general)
+#+end_src
+
+*** keyreq
+#+begin_src elisp :tangle yes
+(require 'keyfreq)
+(keyfreq-mode 1)
+(keyfreq-autosave-mode 1)
+#+end_src
 
 ** Ivy Mode
 *** ivy
@@ -533,6 +544,19 @@ Adds marginalia to the minibuffer completions.
 #+end_src
 
 
+
+** Magit
+#+begin_src elisp :tangle yes
+(require 'magit)
+
+(with-eval-after-load 'magit
+  (magit-add-section-hook 'magit-status-sections-hook
+                          'magit-insert-modules
+                          'magit-insert-stashes
+                          'append))
+#+end_src
+
+
 ** LSP
 *** lsp-mode
 #+begin_src elisp :tangle yes
@@ -636,6 +660,7 @@ Adds marginalia to the minibuffer completions.
 #+begin_src elisp :tangle yes
 (require 'org)
 (require 'org-modern)
+(require 'org-tidy)
 
 (dolist (face '(window-divider
                 window-divider-first-pixel
@@ -769,6 +794,8 @@ Adds marginalia to the minibuffer completions.
 
     ;; 插入链接
     (org-insert-link nil (concat "file:" image-file) "")))
+
+(add-hook 'org-mode-hook #'org-tidy-mode)
 #+end_src
 
 #+RESULTS:
@@ -823,11 +850,12 @@ Adds marginalia to the minibuffer completions.
                                                "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
                                     :unnarrowed t)))
 
-(global-set-key (kbd "C-c n f") 'org-roam-node-find)
-(global-set-key (kbd "C-c n i") 'org-roam-node-insert)
-(global-set-key (kbd "C-c n c") 'org-roam-capture)
-(global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
-(global-set-key (kbd "C-c n u") 'org-roam-ui-mode)
+(general-define-key "C-c n f" 'org-roam-node-find)
+(general-define-key "C-c n i" 'org-roam-node-insert)
+(general-define-key "C-c n c" 'org-roam-capture)
+(general-define-key "C-c n l" 'org-roam-buffer-toggle)
+(general-define-key "C-c n u" 'org-roam-ui-mode)
+
 
 (with-eval-after-load 'org-roam
   (org-roam-db-autosync-mode))
