@@ -116,7 +116,7 @@
 (defun generate-env-file ()
   (interactive)
   (let* ((path (expand-file-name "env.el"
-                                 (concat user-emacs-directory "/lisp")))
+                                 (concat user-emacs-directory "lisp")))
          (command (format "emacs --batch -l '%s'" path)))
     (message
      (prin1-to-string
@@ -229,11 +229,14 @@ indent-tabs-mode nil)
 (setq rm-blacklist
   (format "^ \\(%s\\)$"
    (mapconcat #'identity
-    '("Projectile.*" "company.*"  "Undo-Tree" "counsel" "ivy" "yas" "WK")
+    '("Projectile.*" "company.*"  "Undo-Tree" "counsel" "ivy" "yas" "WK" "snipe")
      "\\|")))
 (sml/setup)
 (sml/apply-theme 'respectful)
 #+end_src
+
+#+RESULTS:
+: t
 
 *** Themes
 #+begin_src elisp :tangle yes
@@ -275,6 +278,7 @@ indent-tabs-mode nil)
 
 
 * Evil Mode
+** evil
 #+begin_src elisp :tangle yes
 (require 'evil)
 (require 'evil-surround)
@@ -284,7 +288,10 @@ indent-tabs-mode nil)
 (global-evil-visualstar-mode 1)
 (global-evil-surround-mode 1)
 
-(with-eval-after-load 'evil-maps (define-key evil-motion-state-map (kbd "TAB") nil))
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "TAB") nil)
+  (define-key evil-motion-state-map (kbd "C-e") nil)
+  )
 
 (setq evil-want-C-i-jump nil)
 
@@ -328,6 +335,17 @@ indent-tabs-mode nil)
 (setq evil-visualstar/persistent t)
 (run-with-idle-timer 2 nil #'global-evil-visualstar-mode)
 ;; }}
+#+end_src
+
+** evil-snipe
+#+begin_src elisp :tangle yes
+(require 'evil-snipe)
+
+(evil-snipe-mode +1)
+(evil-snipe-override-mode +1)
+
+;; fix conflict
+(add-hook 'magit-mode-hook 'turn-off-evil-snipe-override-mode)
 #+end_src
 
 
@@ -804,7 +822,7 @@ Adds marginalia to the minibuffer completions.
 ** Org Roam
 #+begin_src elisp :tangle yes
 ;; add extensions
-(add-to-list 'load-path (concat user-emacs-directory "/lib/org-roam/extensions/"))
+(add-to-list 'load-path (concat user-emacs-directory "lib/org-roam/extensions/"))
 
 (require 'org-roam)
 (require 'org-roam-dailies)
