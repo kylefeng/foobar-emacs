@@ -213,6 +213,7 @@ indent-tabs-mode nil)
 (set-frame-height (selected-frame) 60)
 
 (global-display-line-numbers-mode t)
+(column-number-mode 1)
 
 ;; 相对行数方便跨行操作计数
 (setq display-line-numbers-type 'relative)
@@ -673,8 +674,8 @@ Adds marginalia to the minibuffer completions.
 
 
 
-* Org Mode
-** Org
+* Org
+** org-mode
 #+begin_src elisp :tangle yes
 (require 'org)
 (require 'org-modern)
@@ -690,6 +691,8 @@ Adds marginalia to the minibuffer completions.
 (with-eval-after-load 'org
   (defvar org-agenda-dir "gtd org files location")
   (setq-default org-agenda-dir (file-truename "~/development/org"))
+
+  (setq-default org-directory (file-truename "~/development/org"))
 
   ;; Choose some fonts
   (set-face-attribute 'default nil :family "Iosevka")
@@ -832,13 +835,19 @@ Adds marginalia to the minibuffer completions.
 
 (setq org-roam-directory (file-truename "~/org-roam"))
 (setq org-roam-dailies-directory (file-truename "~/org-roam/dailies"))
-
 (setq org-roam-db-gc-threshold most-positive-fixnum)
 
+(cl-defmethod org-roam-node-type ((node org-roam-node))
+  "Return the TYTPE of NODE."
+  (condition-case nil
+      (file-name-nondirectory
+       (directory-file-name
+        (file-name-directory
+         (file-relative-name (org-roam-node-file node) org-roam-directory))))
+    (error "")))
 
 (setq org-roam-node-display-template
-      (concat "${title:*} "
-              (propertize "${tags:10}" 'face 'org-tag)))
+      (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
 
 (add-to-list 'display-buffer-alist
              '("\\*org-roam\\*"
