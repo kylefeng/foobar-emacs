@@ -7,6 +7,9 @@
 [submodule "amx"]
 	path = lib/amx
 	url = https://github.com/DarwinAwardWinner/amx
+[submodule "async"]
+	path = lib/async
+	url = https://github.com/jwiegley/emacs-async
 [submodule "avy"]
 	path = lib/avy
 	url = https://github.com/abo-abo/avy
@@ -37,10 +40,16 @@
 [submodule "dracula-theme"]
 	path = lib/dracula-theme
 	url = https://github.com/dracula/emacs
+[submodule "elisp-refs"]
+	path = lib/elisp-refs
+	url = https://github.com/Wilfred/elisp-refs
 [submodule "emacsql"]
 	path = lib/emacsql
 	url = git@github.com:skeeto/emacsql.git
 	no-byte-compile = emacsql-pg.el
+[submodule "emmet-mode"]
+	path = lib/emmet-mode
+	url = https://github.com/smihica/emmet-mode
 [submodule "epkg"]
 	path = lib/epkg
 	url = git@github.com:emacscollective/epkg.git
@@ -83,6 +92,9 @@
 [submodule "haskell-mode"]
 	path = lib/haskell-mode
 	url = https://github.com/haskell/haskell-mode
+[submodule "helpful"]
+	path = lib/helpful
+	url = https://github.com/Wilfred/helpful
 [submodule "highlight-symbol"]
 	path = lib/highlight-symbol
 	url = https://github.com/nschum/highlight-symbol.el
@@ -95,6 +107,9 @@
 [submodule "ivy"]
 	path = lib/ivy
 	url = https://github.com/abo-abo/swiper
+[submodule "js2-mode"]
+	path = lib/js2-mode
+	url = https://github.com/mooz/js2-mode
 [submodule "keyfreq"]
 	path = lib/keyfreq
 	url = https://github.com/dacap/keyfreq
@@ -137,6 +152,9 @@
 [submodule "org"]
 	path = lib/org
 	url = https://git.savannah.gnu.org/git/emacs/org-mode.git
+[submodule "org-download"]
+	path = lib/org-download
+	url = https://github.com/abo-abo/org-download
 [submodule "org-modern"]
 	path = lib/org-modern
 	url = https://github.com/minad/org-modern
@@ -170,9 +188,15 @@
 [submodule "rainbow-delimiters"]
 	path = lib/rainbow-delimiters
 	url = https://github.com/Fanael/rainbow-delimiters
+[submodule "reveal-in-osx-finder"]
+	path = lib/reveal-in-osx-finder
+	url = https://github.com/kaz-yos/reveal-in-osx-finder
 [submodule "rich-minority"]
 	path = lib/rich-minority
 	url = https://github.com/Malabarba/rich-minority
+[submodule "rjsx-mode"]
+	path = lib/rjsx-mode
+	url = https://github.com/felipeochoa/rjsx-mode
 [submodule "s"]
 	path = lib/s
 	url = https://github.com/magnars/s.el
@@ -200,6 +224,9 @@
 [submodule "undo-tree"]
 	path = lib/undo-tree
 	url = https://gitlab.com/tsc25/undo-tree
+[submodule "web-mode"]
+	path = lib/web-mode
+	url = https://github.com/fxbois/web-mode
 [submodule "websocket"]
 	path = lib/websocket
 	url = https://github.com/ahyatt/emacs-websocket

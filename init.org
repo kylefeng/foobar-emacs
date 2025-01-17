@@ -87,15 +87,18 @@
 #+end_src
 
 
-** Constants
+** Constants and Variables
 #+begin_src elisp :tangle yes 
-;; -*- lexical-binding: t; -*-  
-(defconst *is-mac* (eq system-type 'darwin))
-(defconst *is-linux* (eq system-type 'gnu/linux))
-(defconst *is-windows* (or (eq system-type 'ms-dos)
-     (eq system-type 'windows-nt)))
+  ;; -*- lexical-binding: t; -*-  
+  (defconst *is-mac* (eq system-type 'darwin))
+  (defconst *is-linux* (eq system-type 'gnu/linux))
+  (defconst *is-windows* (or (eq system-type 'ms-dos)
+                             (eq system-type 'windows-nt)))
+  (defconst *spell-check-support-enabled* nil)
 
-(defconst *spell-check-support-enabled* nil)
+
+  (defvar foobar/my-proxy "127.0.0.1:64477")
+  (defvar foobar/my-socks-proxy "127.0.0.1:64477")
 #+end_src
 
 
@@ -190,15 +193,107 @@ indent-tabs-mode nil)
 
 ** Utils
 #+begin_src elisp :tangle yes
-(defun mp-elisp-mode-eval-buffer ()
-  (interactive)
-  (message "Evaluated buffer")
-  (eval-buffer))
+  (defun mp-elisp-mode-eval-buffer ()
+    (interactive)
+    (message "Evaluated buffer")
+    (eval-buffer))
 
-(define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
-(define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+  (define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
+  (defun foobar/add-auto-mode (mode &rest patterns)
+    "Add entries to `auto-mode-alist' to use MODE for given file PATTERNS."
+    (dolist (pattern patterns)
+      (push (cons pattern mode) auto-mode-alist)))
+
+
+  ;; Network Proxy
+  (defun foobar/show-http-proxy ()
+    "Show HTTP/HTTPS proxy."
+    (interactive)
+    (if url-proxy-services
+        (message "Current HTTP proxy is `%s'" foobar/my-proxy)
+      (message "No HTTP proxy")))
+
+
+  (defun foobar/enable-http-proxy ()
+    "Enable HTTP/HTTPS proxy."
+    (interactive)
+    (setq url-proxy-services
+          `(("http" . ,foobar/my-proxy)
+            ("https" . ,foobar/my-proxy)
+            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
+    (foobar/show-http-proxy))
+
+  (defun foobar/disable-http-proxy ()
+    "Disable HTTP/HTTPS proxy."
+    (interactive)
+    (setq url-proxy-services nil)
+    (foobar/show-http-proxy))
+
+  (defun foobar/toogle-http-proxy ()
+    "Toogle HTTP/HTTPS proxy."
+    (interactive)
+    (if (bound-and-true-p url-proxy-services)
+        (foobar/disable-http-proxy)
+      (foobar/enable-http-proxy)))
+
+  (defun foobar/show-socks-proxy ()
+    "Show SOCKS proxy."
+    (interactive)
+    (if (bound-and-true-p socks-noproxy)
+        (message "Current SOCKS%d proxy is %s:%s"
+                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+      (message "No SOCKS proxy")))
+
+  (defun foobar/enable-socks-proxy ()
+    "Enable SOCKS proxy."
+    (interactive)
+    (require 'socks)
+    (setq url-gateway-method 'socks
+          socks-noproxy '("localhost"))
+    (let* ((proxy (split-string foobar/my-socks-proxy ":"))
+           (host (car proxy))
+           (port (string-to-number (cadr proxy))))
+      (setq socks-server `("Default server" ,host ,port 5)))
+    (setenv "all_proxy" (concat "socks5://" foobar/my-socks-proxy))
+    (foobar/show-socks-proxy))
+
+  (defun foobar/disable-socks-proxy ()
+    "Disable SOCKS proxy."
+    (interactive)
+    (setq url-gateway-method 'native
+          socks-noproxy nil
+          socks-server nil)
+    (setenv "all_proxy" "")
+    (foobar/show-socks-proxy))
+  
+  (defun toggle-socks-proxy ()
+    "Toggle SOCKS proxy."
+    (interactive)
+    (if (bound-and-true-p socks-server)
+        (foobar/disable-socks-proxy)
+      (foobar/enable-socks-proxy)))
+  
+  (defun foobar/enable-proxy ()
+    "Enbale proxy."
+    (interactive)
+    (foobar/enable-http-proxy)
+    (foobar/enable-socks-proxy))
+  
+  (defun disable-proxy ()
+    "Disable proxy."
+    (interactive)
+    (foobar/disable-http-proxy)
+    (foobar/disable-socks-proxy))
+  
+  (defun toggle-proxy ()
+    "Toggle proxy."
+    (interactive)
+    (foobar/toggle-http-proxy)
+    (foobar/toggle-socks-proxy))
 #+end_src
 
 
@@ -416,6 +511,32 @@ Adds marginalia to the minibuffer completions.
 (keyfreq-autosave-mode 1)
 #+end_src
 
+*** helpful
+#+begin_src elisp :tangle yes
+(require 'helpful)
+
+;; Note that the built-in `describe-function' includes both functions
+;; and macros. `helpful-function' is functions only, so we provide
+;; `helpful-callable' as a drop-in replacement.
+(global-set-key (kbd "C-h f") #'helpful-callable)
+
+(global-set-key (kbd "C-h v") #'helpful-variable)
+(global-set-key (kbd "C-h k") #'helpful-key)
+(global-set-key (kbd "C-h x") #'helpful-command)
+
+;; Lookup the current symbol at point. C-c C-d is a common keybinding
+;; for this in lisp modes.
+(global-set-key (kbd "C-c C-d") #'helpful-at-point)
+
+;; Look up *F*unctions (excludes macros).
+;;
+;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
+;; already links to the manual, if a function is referenced there.
+(global-set-key (kbd "C-h F") #'helpful-function)
+
+(setq counsel-describe-function-function #'helpful-callable)
+(setq counsel-describe-variable-function #'helpful-variable)
+#+end_src
 ** Ivy Mode
 *** ivy
 #+begin_src elisp :tangle yes
@@ -674,18 +795,59 @@ Adds marginalia to the minibuffer completions.
 
 
 
+
+** Web Development
+*** emmet
+#+begin_src elisp :tangle yes
+(add-hook 'sgml-mode-hook 'emmet-mode)
+(add-hook 'web-mode-hook 'emmet-mode)
+(add-hook 'css-mode-hook 'emmet-mode)
+(add-hook 'rjsx-mode-hook 'emmet-mode)
+#+end_src
+*** web-mode
+#+begin_src elisp :tangle yes
+(foobar/add-auto-mode 'web-mode
+                      "\\.\\(cmp\\|app\\|page\\|component\\|wp\\|vue\\|tmpl\\|php\\|module\\|inc\\|hbs\\|tpl\\|[gj]sp\\|as[cp]x\\|erb\\|mustache\\|djhtml\\|ftl\\|[rp]?html?\\|xul?\\|eex?\\|xml?\\|jst\\|ejs\\|erb\\|rbxlx\\|plist\\)\\'")
+
+(with-eval-after-load 'web-mode
+  (setq web-mode-enable-auto-closing t)
+  (setq web-mode-enable-auto-paring t)
+  (setq web-mode-auto-close-style 2)
+  (setq web-mode-enable-css-colorization t)
+  )
+#+end_src
+*** js-mode
+#+begin_src elisp :tangle yes
+(foobar/add-auto-mode 'js-mode
+                      "\\.ja?son\\'"
+                      "\\.pac\\'"
+                      "\\.jshintrc\\'"
+                      )
+
+;; javascript
+(foobar/add-auto-mode 'js2-mode "\\.m?js\\(\\.erb\\)?\\'")
+
+;; JSX
+(foobar/add-auto-mode 'rjsx-mode
+                      "\\.[tj]sx\\'"
+                      "components\\/.*\\.js\\'")
+#+end_src
+
+
 * Org
 ** org-mode
 #+begin_src elisp :tangle yes
 (require 'org)
 (require 'org-modern)
 (require 'org-tidy)
+(require 'org-download)
 
 (dolist (face '(window-divider
                 window-divider-first-pixel
                 window-divider-last-pixel))
   (face-spec-reset-face face)
   (set-face-foreground face (face-attribute 'default :background)))
+
 (set-face-background 'fringe (face-attribute 'default :background))
 
 (with-eval-after-load 'org
@@ -723,10 +885,10 @@ Adds marginalia to the minibuffer completions.
     org-agenda-current-time-string
     "<- now ─────────────────────────────────────────────────"
 
-    org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c @/!)"))
+    org-todo-keywords '((sequence "TODO(t!)" "ACTING(a!)" "|" "DONE(d!)" "CANCELED(c@/!)"))
 
     ;; agenda files
-    org-agenda-files '(org-agenda-dir)
+    org-agenda-files (directory-files-recursively org-agenda-dir "\\.org$")
 
     org-image-actual-width 600
     org-edit-src-content-indentation 0
@@ -784,9 +946,9 @@ Adds marginalia to the minibuffer completions.
   ))
 
   (setq org-refile-targets  '((org-agenda-file-finished :maxlevel . 1)
-              (org-agenda-file-note :maxlevel . 1)
-              (org-agenda-file-canceled :maxlevel . 1)
-               (org-agenda-file-task :maxlevel . 1))))
+                              (org-agenda-file-note :maxlevel . 1)
+                              (org-agenda-file-canceled :maxlevel . 1)
+                              (org-agenda-file-task :maxlevel . 1))))
 
 (with-eval-after-load 'org (global-org-modern-mode))
 
@@ -816,11 +978,25 @@ Adds marginalia to the minibuffer completions.
     ;; 插入链接
     (org-insert-link nil (concat "file:" image-file) "")))
 
-(add-hook 'org-mode-hook #'org-tidy-mode)
-#+end_src
+(defun foobar/org-jump-to-first-heading-same-level ()
+  "Move to first sibling with same level."
+  (interactive)
+  (let ((p (point)))
+    (while (progn (org-forward-heading-same-level -1)
+                  (< (point) p))
+      (setq p (point)))))
 
-#+RESULTS:
-: org-insert-image
+(defun foobar/org-jump-to-last-heading-same-level ()
+  "Move to last sibling with same level."
+  (interactive)
+  (let ((p (point)))
+    (while (progn (org-forward-heading-same-level 1)
+                  (< p (point)))
+      (setq p (point)))))
+
+(add-hook 'org-mode-hook #'org-tidy-mode)
+(add-hook 'dired-mode-hook 'org-download-enable)
+#+end_src
 
 ** Org Roam
 #+begin_src elisp :tangle yes
@@ -861,20 +1037,20 @@ Adds marginalia to the minibuffer completions.
 (setq org-roam-capture-templates '(("m" "main" plain "%?"
                                     :target
                                     (file+head "main/%<%Y-%m-%d>-${slug}.org"
-                                           "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
+                                           "#+title: ${title}\n")
                                      :unnarrowed t)
 
                                    ("r" "reference" plain "%?"
                                     :target
                                    (file+head "reference/%<%Y-%m-%d>-${slug}.org"
-                                              "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
+                                              "#+title: ${title}\n")
                                    :unnarrowed t)
 
                                    ("a" "article" plain "%?"
                                     ;; :target
                                     :if-new
                                     (file+head "articles/%<%Y-%m-%d>-${slug}.org"
-                                               "#+title: ${title}\n* Action notes\n* Idea notes\n* Sealed notes")
+                                               "#+title: ${title}\n")
                                     :unnarrowed t)))
 
 (general-define-key "C-c n f" 'org-roam-node-find)
