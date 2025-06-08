@@ -81,6 +81,7 @@
 ** Benchmark
 *** benchmark-init
 #+begin_src elisp :tangle yes
+;; -*- lexical-binding: t; -*-  
 (require 'benchmark-init)
 ;; To disable collection of benchmark data after init is done.
 (add-hook 'after-init-hook 'benchmark-init/deactivate)
@@ -89,7 +90,6 @@
 
 ** Constants and Variables
 #+begin_src elisp :tangle yes 
-  ;; -*- lexical-binding: t; -*-  
   (defconst *is-mac* (eq system-type 'darwin))
   (defconst *is-linux* (eq system-type 'gnu/linux))
   (defconst *is-windows* (or (eq system-type 'ms-dos)
@@ -104,6 +104,7 @@
 
 ** System Env
 #+begin_src elisp :tangle yes
+(defvar env-file "File saving os enviroment variables.")
 (setq env-file (expand-file-name "env" user-emacs-directory))
 
 (defun doom-call-process (command &rest args)
@@ -156,11 +157,11 @@ unreadable. Returns the names of envvars that were changed."
 
 ** Basic config
 #+begin_src elisp :tangle yes
+(require 'setup)
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
-(setq default-buffer-file-coding-system 'utf-8)
 
 (setq ring-bell-function 'ignore)
 (setq inhibit-startup-screen t)
@@ -180,8 +181,8 @@ unreadable. Returns the names of envvars that were changed."
 ;; 选中文本后输入会替换文本
 (delete-selection-mode t)
 
-(setq-default tab-width 4
-indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq-default indent-tabs-mode nil)
 
 ;; 高亮括号
 (add-hook 'prog-mode-hook #'show-paren-mode)
@@ -193,107 +194,113 @@ indent-tabs-mode nil)
 
 ** Utils
 #+begin_src elisp :tangle yes
-  (defun mp-elisp-mode-eval-buffer ()
-    (interactive)
-    (message "Evaluated buffer")
-    (eval-buffer))
+(eval-when-compile
+  (require 'url-vars))
 
-  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
-  (define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+(defun mp-elisp-mode-eval-buffer ()
+  (interactive)
+  (message "Evaluated buffer")
+  (eval-buffer))
 
-  (defalias 'yes-or-no-p 'y-or-n-p)
+(define-key emacs-lisp-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
+(define-key lisp-interaction-mode-map (kbd "C-c C-c") #'mp-elisp-mode-eval-buffer)
 
-  (defun foobar/add-auto-mode (mode &rest patterns)
-    "Add entries to `auto-mode-alist' to use MODE for given file PATTERNS."
-    (dolist (pattern patterns)
-      (push (cons pattern mode) auto-mode-alist)))
+(defalias 'yes-or-no-p 'y-or-n-p)
 
-
-  ;; Network Proxy
-  (defun foobar/show-http-proxy ()
-    "Show HTTP/HTTPS proxy."
-    (interactive)
-    (if url-proxy-services
-        (message "Current HTTP proxy is `%s'" foobar/my-proxy)
-      (message "No HTTP proxy")))
+(defun foobar/add-auto-mode (mode &rest patterns)
+  "Add entries to `auto-mode-alist' to use MODE for given file PATTERNS."
+  (dolist (pattern patterns)
+    (push (cons pattern mode) auto-mode-alist)))
 
 
-  (defun foobar/enable-http-proxy ()
-    "Enable HTTP/HTTPS proxy."
-    (interactive)
-    (setq url-proxy-services
-          `(("http" . ,foobar/my-proxy)
-            ("https" . ,foobar/my-proxy)
-            ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
-    (foobar/show-http-proxy))
+;; Network Proxy
+(defvar socks-noproxy)
+(defvar socks-server)
 
-  (defun foobar/disable-http-proxy ()
-    "Disable HTTP/HTTPS proxy."
-    (interactive)
-    (setq url-proxy-services nil)
-    (foobar/show-http-proxy))
+(defun foobar/show-http-proxy ()
+  "Show HTTP/HTTPS proxy."
+  (interactive)
+  (if url-proxy-services
+      (message "Current HTTP proxy is `%s'" foobar/my-proxy)
+    (message "No HTTP proxy")))
 
-  (defun foobar/toogle-http-proxy ()
-    "Toogle HTTP/HTTPS proxy."
-    (interactive)
-    (if (bound-and-true-p url-proxy-services)
-        (foobar/disable-http-proxy)
-      (foobar/enable-http-proxy)))
 
-  (defun foobar/show-socks-proxy ()
-    "Show SOCKS proxy."
-    (interactive)
-    (if (bound-and-true-p socks-noproxy)
-        (message "Current SOCKS%d proxy is %s:%s"
-                 (cadddr socks-server) (cadr socks-server) (caddr socks-server))
-      (message "No SOCKS proxy")))
+(defun foobar/enable-http-proxy ()
+  "Enable HTTP/HTTPS proxy."
+  (interactive)
+  (setq url-proxy-services
+        `(("http" . ,foobar/my-proxy)
+          ("https" . ,foobar/my-proxy)
+          ("no_proxy" . "^\\(localhost\\|192.168.*\\|10.*\\)")))
+  (foobar/show-http-proxy))
 
-  (defun foobar/enable-socks-proxy ()
-    "Enable SOCKS proxy."
-    (interactive)
-    (require 'socks)
-    (setq url-gateway-method 'socks
-          socks-noproxy '("localhost"))
-    (let* ((proxy (split-string foobar/my-socks-proxy ":"))
-           (host (car proxy))
-           (port (string-to-number (cadr proxy))))
-      (setq socks-server `("Default server" ,host ,port 5)))
-    (setenv "all_proxy" (concat "socks5://" foobar/my-socks-proxy))
-    (foobar/show-socks-proxy))
+(defun foobar/disable-http-proxy ()
+  "Disable HTTP/HTTPS proxy."
+  (interactive)
+  (setq url-proxy-services nil)
+  (foobar/show-http-proxy))
 
-  (defun foobar/disable-socks-proxy ()
-    "Disable SOCKS proxy."
-    (interactive)
-    (setq url-gateway-method 'native
-          socks-noproxy nil
-          socks-server nil)
-    (setenv "all_proxy" "")
-    (foobar/show-socks-proxy))
-  
-  (defun toggle-socks-proxy ()
-    "Toggle SOCKS proxy."
-    (interactive)
-    (if (bound-and-true-p socks-server)
-        (foobar/disable-socks-proxy)
-      (foobar/enable-socks-proxy)))
-  
-  (defun foobar/enable-proxy ()
-    "Enbale proxy."
-    (interactive)
-    (foobar/enable-http-proxy)
-    (foobar/enable-socks-proxy))
-  
-  (defun disable-proxy ()
-    "Disable proxy."
-    (interactive)
-    (foobar/disable-http-proxy)
-    (foobar/disable-socks-proxy))
-  
-  (defun toggle-proxy ()
-    "Toggle proxy."
-    (interactive)
-    (foobar/toggle-http-proxy)
-    (foobar/toggle-socks-proxy))
+(defun foobar/toogle-http-proxy ()
+  "Toogle HTTP/HTTPS proxy."
+  (interactive)
+  (if (bound-and-true-p url-proxy-services)
+      (foobar/disable-http-proxy)
+    (foobar/enable-http-proxy)))
+
+(defun foobar/show-socks-proxy ()
+  "Show SOCKS proxy."
+  (interactive)
+  (if (bound-and-true-p socks-noproxy)
+      (message "Current SOCKS%d proxy is %s:%s"
+               (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+    (message "No SOCKS proxy")))
+
+(defun foobar/enable-socks-proxy ()
+  "Enable SOCKS proxy."
+  (interactive)
+  (require 'socks)
+  (setq url-gateway-method 'socks
+        socks-noproxy '("localhost"))
+  (let* ((proxy (split-string foobar/my-socks-proxy ":"))
+         (host (car proxy))
+         (port (string-to-number (cadr proxy))))
+    (setq socks-server `("Default server" ,host ,port 5)))
+  (setenv "all_proxy" (concat "socks5://" foobar/my-socks-proxy))
+  (foobar/show-socks-proxy))
+
+(defun foobar/disable-socks-proxy ()
+  "Disable SOCKS proxy."
+  (interactive)
+  (setq url-gateway-method 'native
+        socks-noproxy nil
+        socks-server nil)
+  (setenv "all_proxy" "")
+  (foobar/show-socks-proxy))
+
+(defun toggle-socks-proxy ()
+  "Toggle SOCKS proxy."
+  (interactive)
+  (if (bound-and-true-p socks-server)
+      (foobar/disable-socks-proxy)
+    (foobar/enable-socks-proxy)))
+
+(defun foobar/enable-proxy ()
+  "Enbale proxy."
+  (interactive)
+  (foobar/enable-http-proxy)
+  (foobar/enable-socks-proxy))
+
+(defun disable-proxy ()
+  "Disable proxy."
+  (interactive)
+  (foobar/disable-http-proxy)
+  (foobar/disable-socks-proxy))
+
+(defun toggle-proxy ()
+  "Toggle proxy."
+  (interactive)
+  (foobar/toggle-http-proxy)
+  (foobar/toggle-socks-proxy))
 #+end_src
 
 
@@ -314,7 +321,8 @@ indent-tabs-mode nil)
 (setq display-line-numbers-type 'relative)
 
 ;; turn on good-scroll
-(good-scroll-mode 1)
+(require 'good-scroll)
+(add-hook 'after-init-hook #'good-scroll-mode)
 #+end_src
 
 *** smart-mode-line
@@ -330,9 +338,6 @@ indent-tabs-mode nil)
 (sml/setup)
 (sml/apply-theme 'respectful)
 #+end_src
-
-#+RESULTS:
-: t
 
 *** Themes
 #+begin_src elisp :tangle yes
@@ -360,10 +365,10 @@ indent-tabs-mode nil)
      (lambda (new-frame)
        (select-frame new-frame)
        (when (display-graphic-p)
- (set-font "Sarasa Mono CL" "Sarasa Mono CL" 13 13))))
+ (set-font "Maple Mono NF CN" "Maple Mono NF CN" 13 13))))
 
 (when (display-graphic-p)
-    (set-font "Sarasa Mono CL" "Sarasa Mono CL" 13 13))
+    (set-font "Maple Mono NF CN" "Maple Mono NF CN" 13 13))
 #+end_src
 
 *** rainbow-delimiters
@@ -833,7 +838,13 @@ Adds marginalia to the minibuffer completions.
                       "components\\/.*\\.js\\'")
 #+end_src
 
-
+** YAML
+#+begin_src elisp :tangle yes
+(require 'yaml-mode)
+(foobar/add-auto-mode 'yaml-mode
+                      "\\.yml\\'"
+                      "\\.yaml\\'")
+#+end_src
 * Org
 ** org-mode
 #+begin_src elisp :tangle yes
@@ -950,7 +961,9 @@ Adds marginalia to the minibuffer completions.
                               (org-agenda-file-canceled :maxlevel . 1)
                               (org-agenda-file-task :maxlevel . 1))))
 
-(with-eval-after-load 'org (global-org-modern-mode))
+(with-eval-after-load 'org
+  (global-org-modern-mode)
+  (org-toggle-pretty-entities))
 
 (defun org-insert-image ()
   (interactive)
@@ -998,7 +1011,7 @@ Adds marginalia to the minibuffer completions.
 (add-hook 'dired-mode-hook 'org-download-enable)
 #+end_src
 
-** Org Roam
+** org-roam
 #+begin_src elisp :tangle yes
 ;; add extensions
 (add-to-list 'load-path (concat user-emacs-directory "lib/org-roam/extensions/"))
@@ -1063,7 +1076,6 @@ Adds marginalia to the minibuffer completions.
 (with-eval-after-load 'org-roam
   (org-roam-db-autosync-mode))
 #+end_src
-
 
 * Keyboard Bindings
 ** User defined KBD
@@ -1135,4 +1147,12 @@ Adds marginalia to the minibuffer completions.
   ("<drag-mouse-1>" ignore)
   ("q" nil))
 (global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
+#+end_src
+
+
+* END
+#+begin_src elisp :tangle yes
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
 #+end_src
