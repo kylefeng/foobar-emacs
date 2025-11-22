@@ -83,6 +83,9 @@
 [submodule "general"]
 	path = lib/general
 	url = https://github.com/noctuid/general.el
+[submodule "go-errcheck"]
+	path = lib/go-errcheck
+	url = https://github.com/dominikh/go-errcheck.el
 [submodule "go-mode"]
 	path = lib/go-mode
 	url = https://github.com/dominikh/go-mode.el

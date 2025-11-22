@@ -160,6 +160,9 @@ unreadable. Returns the names of envvars that were changed."
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 
+;; no scratch message
+(setq  initial-scratch-message nil)
+
 (setq inhibit-startup-screen t)
 
 ;; no file backup
@@ -1612,6 +1615,26 @@ Adds marginalia to the minibuffer completions.
 (global-set-key (kbd "C-x C-h m") 'hydra-multiple-cursors/body)
 #+end_src
 
+
+
+* AI
+** gptel
+#+begin_src elisp :tangle yes
+(require 'gptel)
+
+(setq
+ gptel-model "gpt-4o"
+ gptel-backend (gptel-make-openai "Monica"
+  :host "openapi.monica.im"
+  :protocol "https"
+  :endpoint "/v1/chat/completions"
+  :stream t
+  :models '("gpt-4o")))
+
+(setq gptel-api-key #'gptel-api-key-from-auth-source)
+
+(setq gptel-proxy "127.0.0.1:64477")
+#+end_src
 
 * END
 #+begin_src elisp :tangle yes
