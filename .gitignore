@@ -3,8 +3,9 @@ org-roam.db
 .lsp-session-v1
 .org-id-locations
 amx-items
-auto-save/
-auto-save-list/
+auto-save
+autosave
+auto-save-list
 bookmarks
 custom.el
 early-init.el
