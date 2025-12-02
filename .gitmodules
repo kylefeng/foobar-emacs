@@ -251,3 +251,6 @@
 [submodule "yasnippet-snippets"]
 	path = lib/yasnippet-snippets
 	url = https://github.com/AndreaCrotti/yasnippet-snippets
+[submodule "cond-let"]
+	path = lib/cond-let
+	url = git@github.com:tarsius/cond-let.git
