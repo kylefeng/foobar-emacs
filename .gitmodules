@@ -119,9 +119,6 @@
 [submodule "keyfreq"]
 	path = lib/keyfreq
 	url = https://github.com/dacap/keyfreq
-[submodule "llama"]
-	path = lib/llama
-	url = git@github.com:tarsius/llama.git
 [submodule "lsp-ivy"]
 	path = lib/lsp-ivy
 	url = https://github.com/emacs-lsp/lsp-ivy
