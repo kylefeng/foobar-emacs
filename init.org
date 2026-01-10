@@ -1175,26 +1175,12 @@ Adds marginalia to the minibuffer completions.
 (require 'lsp-ui)
 (require 'lsp-ivy)
 
-(autoload 'lsp "lsp-mode" "" t)
-(autoload 'lsp-deferred "lsp-mode" "" t)
-(autoload 'lsp-ui-mode "lsp-ui" "" t)
-(autoload 'lsp-ivy-workspace-symbol "lsp-ivy" "")
-
 ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
 (setq lsp-keymap-prefix "C-c l")
 (setq lsp-file-watch-threshold 500)
-(setq lsp-prefer-flymake nil
-   lsp-keep-workspace-alive nil
-   lsp-enable-indentation nil
-   lsp-enable-on-type-formatting nil
-   lsp-auto-guess-root nil
-   lsp-enable-snippet t)
-
-(setq lsp-completion-provider :none)
 (setq lsp-headerline-breadcrumb-enable t)
 
 (add-hook 'c-mode-hook #'lsp-deferred)
-(add-hook 'go-mode-hook #'lsp-deferred)
 (add-hook 'java-mode-hook #'lsp-deferred)
 (add-hook 'js-mode-hook #'lsp-deferred)
 (add-hook 'python-mode-hook #'lsp-deferred)
@@ -1210,6 +1196,8 @@ Adds marginalia to the minibuffer completions.
 #+begin_src elisp :tangle yes
 (require 'go-mode)
 
+(add-hook 'go-mode-hook #'lsp-deferred)
+
 ;; Set up before-save hooks to format buffer and add/delete imports.
 ;; Make sure you don't have other gofmt/goimports hooks enabled.
 (defun lsp-go-install-save-hooks ()
@@ -1217,11 +1205,6 @@ Adds marginalia to the minibuffer completions.
   (add-hook 'before-save-hook #'lsp-organize-imports t t))
 
 (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
-
-(lsp-register-custom-settings
- '(
-   ("gopls.completeUnimoprted" t t)
-   ("gopls.staticcheck" t t)))
 #+end_src
 
 
@@ -1265,10 +1248,8 @@ Adds marginalia to the minibuffer completions.
 
 *** lsp-pyright
 #+begin_src elisp :tangle yes
-(add-hook 'python-mode-hook
-          (lambda ()
-            (require 'lsp-pyright)
-            (lsp-deferred)))
+(require 'lsp-pyright)
+(add-hook 'python-mode-hook #'lsp-deferred)
 #+end_src
 
 
@@ -1318,6 +1299,7 @@ Adds marginalia to the minibuffer completions.
                       "\\.yml\\'"
                       "\\.yaml\\'")
 #+end_src
+
 * Org
 ** org-mode
 #+begin_src elisp :tangle yes
@@ -1550,6 +1532,7 @@ Adds marginalia to the minibuffer completions.
   (org-roam-db-autosync-mode))
 #+end_src
 
+
 * Keyboard Bindings
 ** User defined KBD
 #+begin_src elisp :tangle yes
@@ -1613,7 +1596,7 @@ Adds marginalia to the minibuffer completions.
   ("|" mc/vertical-align)
   ("s" mc/mark-all-in-region-regexp :exit t)
   ("0" mc/insert-numbers :exit t)
-
+  ("A" mc/insert-letters :exit t)
   ("<mouse-1>" mc/add-cursor-on-click)
   ;; Help with click recognition in this hydra
   ("<down-mouse-1>" ignore)
@@ -1623,6 +1606,14 @@ Adds marginalia to the minibuffer completions.
 #+end_src
 
 
+
+* Misc
+** Lorem Ipsum
+#+begin_src elisp :tangle yes
+(require 'lorem-ipsum)
+
+(lorem-ipsum-use-default-bindings)
+#+end_src
 
 * AI
 ** gptel

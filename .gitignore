@@ -16,7 +16,7 @@ org-supertag/
 projectile-bookmarks.eld
 projects
 tramp
-transient/
+/transient
 *~undo-tree~
 *.elc
 *-autoloads.el

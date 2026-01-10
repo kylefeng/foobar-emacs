@@ -31,6 +31,9 @@
 [submodule "compat"]
 	path = lib/compat
 	url = git@github.com:emacs-compat/compat.git
+[submodule "cond-let"]
+	path = lib/cond-let
+	url = git@github.com:tarsius/cond-let.git
 [submodule "counsel-projectile"]
 	path = lib/counsel-projectile
 	url = https://github.com/ericdanan/counsel-projectile
@@ -119,12 +122,20 @@
 [submodule "keyfreq"]
 	path = lib/keyfreq
 	url = https://github.com/dacap/keyfreq
+[submodule "llama"]
+	path = lib/llama
+	url = git@github.com:tarsius/llama.git
+[submodule "lorem-ipsum"]
+	path = lib/lorem-ipsum
+	url = https://github.com/jschaf/emacs-lorem-ipsum
 [submodule "lsp-ivy"]
 	path = lib/lsp-ivy
 	url = https://github.com/emacs-lsp/lsp-ivy
 [submodule "lsp-mode"]
 	path = lib/lsp-mode
 	url = https://github.com/emacs-lsp/lsp-mode
+        load-path = .
+	load-path = clients
 [submodule "lsp-pyright"]
 	path = lib/lsp-pyright
 	url = https://github.com/emacs-lsp/lsp-pyright
@@ -215,6 +226,9 @@
 [submodule "spinner"]
 	path = lib/spinner
 	url = https://github.com/Malabarba/spinner.el
+[submodule "transient"]
+	path = lib/transient
+	url = git@github.com:magit/transient.git
 [submodule "treemacs"]
 	path = lib/treemacs
 	url = https://github.com/Alexander-Miller/treemacs
@@ -248,6 +262,3 @@
 [submodule "yasnippet-snippets"]
 	path = lib/yasnippet-snippets
 	url = https://github.com/AndreaCrotti/yasnippet-snippets
-[submodule "cond-let"]
-	path = lib/cond-let
-	url = git@github.com:tarsius/cond-let.git
