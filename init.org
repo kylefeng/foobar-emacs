@@ -152,6 +152,8 @@ unreadable. Returns the names of envvars that were changed."
 #+end_src
 
 
+
+
 ** Basic config
 #+begin_src elisp :tangle yes
 (require 'setup)
@@ -712,7 +714,7 @@ unreadable. Returns the names of envvars that were changed."
   (setq url-proxy-services nil)
   (foobar/show-http-proxy))
 
-(defun foobar/toogle-http-proxy ()
+(defun foobar/toggle-http-proxy ()
   "Toogle HTTP/HTTPS proxy."
   (interactive)
   (if (bound-and-true-p url-proxy-services)
@@ -749,7 +751,7 @@ unreadable. Returns the names of envvars that were changed."
   (setenv "all_proxy" "")
   (foobar/show-socks-proxy))
 
-(defun toggle-socks-proxy ()
+(defun foobar/toggle-socks-proxy ()
   "Toggle SOCKS proxy."
   (interactive)
   (if (bound-and-true-p socks-server)
@@ -762,13 +764,13 @@ unreadable. Returns the names of envvars that were changed."
   (foobar/enable-http-proxy)
   (foobar/enable-socks-proxy))
 
-(defun disable-proxy ()
+(defun foobar/disable-proxy ()
   "Disable proxy."
   (interactive)
   (foobar/disable-http-proxy)
   (foobar/disable-socks-proxy))
 
-(defun toggle-proxy ()
+(defun foobar/toggle-proxy ()
   "Toggle proxy."
   (interactive)
   (foobar/toggle-http-proxy)
@@ -1300,6 +1302,7 @@ Adds marginalia to the minibuffer completions.
                       "\\.yaml\\'")
 #+end_src
 
+
 * Org
 ** org-mode
 #+begin_src elisp :tangle yes
@@ -1315,6 +1318,7 @@ Adds marginalia to the minibuffer completions.
   (set-face-foreground face (face-attribute 'default :background)))
 
 (set-face-background 'fringe (face-attribute 'default :background))
+
 
 (with-eval-after-load 'org
   (defvar org-agenda-dir "gtd org files location")
@@ -1369,6 +1373,7 @@ Adds marginalia to the minibuffer completions.
   (setq org-agenda-file-calendar (expand-file-name "calendar.org" org-agenda-dir))
   (setq org-agenda-file-finished (expand-file-name "finished.org" org-agenda-dir))
   (setq org-agenda-file-canceled (expand-file-name "canceled.org" org-agenda-dir))
+  (setq org-roam-inbox-file (file-truename "~/org-roam/inbox.org"))
 
   (setq org-capture-templates
     '(
@@ -1387,12 +1392,13 @@ Adds marginalia to the minibuffer completions.
     ("o" "Todo_others" entry (file+headline org-agenda-file-task "Others")
       "* TODO [#C] %?\n  %i\n"
       :empty-lines 1)
-    ("n" "notes" entry (file+headline org-agenda-file-note "Quick notes")
+    ("n" "Notes" entry (file+headline org-agenda-file-note "Quick notes")
       "* %?\n  %i\n %U"
       :empty-lines 1)
-    ("i" "ideas" entry (file+headline org-agenda-file-note "Quick ideas")
+    ("i" "Ideas" entry (file+headline org-agenda-file-note "Quick ideas")
       "* %?\n  %i\n %U"
       :empty-lines 1)
+    ("s" "Slipbox" entry (file org-roam-inbox-file) "* %?\n")
     ))
 
   (setq org-agenda-custom-commands
@@ -1462,9 +1468,9 @@ Adds marginalia to the minibuffer completions.
                   (< p (point)))
       (setq p (point)))))
 
-(add-hook 'org-mode-hook #'org-tidy-mode)
 (add-hook 'dired-mode-hook 'org-download-enable)
 #+end_src
+
 
 ** org-roam
 #+begin_src elisp :tangle yes
@@ -1478,7 +1484,7 @@ Adds marginalia to the minibuffer completions.
                                org-roam-reflinks-section))
 
 (setq org-roam-directory (file-truename "~/org-roam"))
-(setq org-roam-dailies-directory (file-truename "~/org-roam/dailies"))
+(setq org-roam-dailies-directory "dailies/")
 (setq org-roam-db-gc-threshold most-positive-fixnum)
 
 (cl-defmethod org-roam-node-type ((node org-roam-node))
@@ -1503,23 +1509,28 @@ Adds marginalia to the minibuffer completions.
 
 ;; templates
 (setq org-roam-capture-templates '(("m" "main" plain "%?"
-                                    :target
-                                    (file+head "main/%<%Y-%m-%d>-${slug}.org"
-                                           "#+title: ${title}\n")
-                                     :unnarrowed t)
+                                    :if-new (file+head "main/${slug}.org"
+                                                       "#+title: ${title}\n")
+                                    :immediate-finish t
+                                    :unnarrowed t)
 
                                    ("r" "reference" plain "%?"
-                                    :target
-                                   (file+head "reference/%<%Y-%m-%d>-${slug}.org"
-                                              "#+title: ${title}\n")
-                                   :unnarrowed t)
+                                    :if-new (file+head "reference/${slug}.org"
+                                                       "#+title: ${title}\n")
+                                    :immediate-finish t
+                                    :unnarrowed t)
 
                                    ("a" "article" plain "%?"
-                                    ;; :target
-                                    :if-new
-                                    (file+head "articles/%<%Y-%m-%d>-${slug}.org"
-                                               "#+title: ${title}\n")
+                                    :if-new (file+head "articles/${slug}.org"
+                                                       "#+title: ${title}\n")
+                                    :immediate-finish t
                                     :unnarrowed t)))
+
+(setq org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         "* %?"
+         :target (file+head "%<%Y-%m-%d>.org"
+                            "#+title: %<%Y-%m-%d>\n"))))
 
 (general-define-key "C-c n f" 'org-roam-node-find)
 (general-define-key "C-c n i" 'org-roam-node-insert)
