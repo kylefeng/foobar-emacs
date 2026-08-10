@@ -663,6 +663,10 @@ unreadable. Returns the names of envvars that were changed."
 
 ;; END fork from - https://github.com/jamescherti/minimal-emacs.d/blob/main/init.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'server)
+(unless (server-running-p)
+  (server-start))
 #+end_src
 
 
@@ -1549,7 +1553,7 @@ Adds marginalia to the minibuffer completions.
 #+begin_src elisp :tangle yes
 (when *is-mac*
   (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'none))
+  (setq mac-option-modifier 'super))
 
 (defun next-ten-lines ()
   "Move cursor to next 10 lines."
