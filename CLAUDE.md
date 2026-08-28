@@ -6,18 +6,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A personal Emacs configuration (`~/.emacs.d`). Two architectural choices govern it, and both must be respected when editing:
 
-## 1. Literate config — `init.org` is the source of truth
+## 1. Module layout — hand-written `.el` files under `lisp/`
 
-`init.el` and `early-init.el` are **generated, gitignored build artifacts** (see `.gitignore`). Never edit them directly — changes there get overwritten on the next tangle.
+The config is split into one `.el` file per feature area, loaded in dependency order by a thin root `init.el`. **`init.el`, `early-init.el`, and `lisp/init-*.el` are hand-maintained source** — edit them directly. They are tracked in git (no longer generated, no longer gitignored).
 
-- Edit `init.org` only.
-- Regenerate with `M-x org-babel-tangle` (`C-c C-v t`) while visiting `init.org`.
-- Each source block's `:tangle` header decides where it lands:
-  - `:tangle yes` → `init.el`
-  - `:tangle ~/.emacs.d/early-init.el` → `early-init.el` (the dedicated early-init block at top)
-- There is **no tangle-on-save hook** — tangle is always manual.
+- `init.el` — the loader: prepends `lisp/` to `load-path`, then `require`s each module in order. Add new modules here.
+- `early-init.el` — runs before `init.el` (Emacs convention): GC tuning, the `minimal-emacs.d` fork, borg bootstrap, and `custom-file` setup.
+- `lisp/init-<section>.el` — one module per feature area.
 
-`init.org` is organized as top-level sections: Startup Config → Evil Mode → Enhancement (Ivy/Company/etc.) → Programming (per-language) → Org → Keyboard Bindings → Hydra → AI. `init.el` mirrors this section order.
+**Load order is load-bearing.** `init-startup` must come first — it defines the constants (`*is-mac*` etc.) and utilities (`foobar/add-auto-mode`, proxy helpers) that later modules reference. Preserve the order when adding a module.
+
+Modules (each ends with `(provide 'init-<name>)`):
+
+| Module | Contents |
+|---|---|
+| `init-startup` | benchmark, constants, env loading, base settings, utils |
+| `init-ui` | modeline, theme, fonts, icons |
+| `init-evil` | evil, evil-surround, evil-snipe |
+| `init-enhancement` | which-key, ivy/counsel/swiper, company, undo-tree, multiple-cursors, helpful |
+| `init-programming` | yasnippet, projectile/treemacs, magit, lsp-mode, per-language modes |
+| `init-org` | org-mode, org-roam |
+| `init-keybindings` | global key bindings |
+| `init-hydra` | hydra menus |
+| `init-misc` | misc utilities |
+| `init-ai` | gptel |
+
+`init.org.legacy` is the retired literate source (kept for reference). **Do not `org-babel-tangle` it** — doing so would overwrite the hand-written `init.el` / `early-init.el`.
 
 ## 2. Package management — borg (git submodules under `lib/`)
 
@@ -33,15 +47,19 @@ Packages are called **drones** and live as git submodules in `lib/` (85 of them,
 
 ## Layout notes
 
-- `init.org` / `init.el` — the config (see literate-config rule above).
-- `lib/` — borg drones (git submodules). Treat as vendored upstream code; don't edit in place.
+- `init.el` — module loader (entry point).
+- `early-init.el` — early init (GC, borg bootstrap, custom-file).
+- `lisp/init-*.el` — the config modules (see table above).
 - `lisp/env.el` — helper loaded by `generate-env-file` / `doom-load-envvars-file` to inject shell env (PATH, etc.) into Emacs. `env` (gitignored) is the generated output.
+- `lib/` — borg drones (git submodules). Treat as vendored upstream code; don't edit in place.
 - `custom.el` (gitignored) — Emacs writes `customize`-driven settings here; not hand-edited.
 - `snippets/` — yasnippet snippets.
+- `init.org.legacy` — retired literate source; do not tangle.
 
 ## Conventions in the config
 
-- `lexical-binding: t` is the default (set in early-init and each tangled block).
+- `lexical-binding: t` is set in every `.el` file via the `;;; file.el --- ... -*- lexical-binding: t; -*-` header line. Keep it when adding files.
+- Every module ends with `(provide 'init-<name>)` so the loader can `require` it (fail-fast if a module is broken or missing).
 - Inline comments are mixed Chinese/English; when adding comments, match the surrounding block's language. (Per global rules, prefer English for consistency.)
-- Platform branches use the `*is-mac*` / `*is-linux*` / `*is-windows*` constants defined in the "Constants and Variables" block.
-- Several sections fork settings from `minimal-emacs.d` (clearly marked `START fork` / `END fork`) — preserve those markers if editing within them.
+- Platform branches use the `*is-mac*` / `*is-linux*` / `*is-windows*` constants defined in `lisp/init-startup.el`.
+- Several spots fork settings from `minimal-emacs.d` (clearly marked `START fork` / `END fork`) — preserve those markers if editing within them.

@@ -1,266 +1,269 @@
 [submodule "ace-window"]
-	path = lib/ace-window
-	url = https://github.com/abo-abo/ace-window
+    path = lib/ace-window
+    url = https://github.com/abo-abo/ace-window
 [submodule "all-the-icons"]
-	path = lib/all-the-icons
-	url = https://github.com/domtronn/all-the-icons.el
+    path = lib/all-the-icons
+    url = https://github.com/domtronn/all-the-icons.el
 [submodule "amx"]
-	path = lib/amx
-	url = https://github.com/DarwinAwardWinner/amx
+    path = lib/amx
+    url = https://github.com/DarwinAwardWinner/amx
 [submodule "async"]
-	path = lib/async
-	url = https://github.com/jwiegley/emacs-async
+    path = lib/async
+    url = https://github.com/jwiegley/emacs-async
 [submodule "avy"]
-	path = lib/avy
-	url = https://github.com/abo-abo/avy
+    path = lib/avy
+    url = https://github.com/abo-abo/avy
 [submodule "benchmark-init"]
-	path = lib/benchmark-init
-	url = https://github.com/dholm/benchmark-init-el
+    path = lib/benchmark-init
+    url = https://github.com/dholm/benchmark-init-el
 [submodule "borg"]
-	path = lib/borg
-	url = git@github.com:emacscollective/borg.git
+    path = lib/borg
+    url = git@github.com:emacscollective/borg.git
 [submodule "closql"]
-	path = lib/closql
-	url = git@github.com:emacscollective/closql.git
+    path = lib/closql
+    url = git@github.com:emacscollective/closql.git
 [submodule "company"]
-	path = lib/company
-	url = https://github.com/company-mode/company-mode
+    path = lib/company
+    url = https://github.com/company-mode/company-mode
 [submodule "company-box"]
-	path = lib/company-box
-	url = https://github.com/sebastiencs/company-box
+    path = lib/company-box
+    url = https://github.com/sebastiencs/company-box
 [submodule "compat"]
-	path = lib/compat
-	url = git@github.com:emacs-compat/compat.git
+    path = lib/compat
+    url = git@github.com:emacs-compat/compat.git
 [submodule "cond-let"]
-	path = lib/cond-let
-	url = git@github.com:tarsius/cond-let.git
+    path = lib/cond-let
+    url = git@github.com:tarsius/cond-let.git
 [submodule "counsel-projectile"]
-	path = lib/counsel-projectile
-	url = https://github.com/ericdanan/counsel-projectile
+    path = lib/counsel-projectile
+    url = https://github.com/ericdanan/counsel-projectile
 [submodule "dash"]
-	path = lib/dash
-	url = https://github.com/magnars/dash.el
+    path = lib/dash
+    url = https://github.com/magnars/dash.el
 [submodule "dracula-theme"]
-	path = lib/dracula-theme
-	url = https://github.com/dracula/emacs
+    path = lib/dracula-theme
+    url = https://github.com/dracula/emacs
 [submodule "elisp-refs"]
-	path = lib/elisp-refs
-	url = https://github.com/Wilfred/elisp-refs
+    path = lib/elisp-refs
+    url = https://github.com/Wilfred/elisp-refs
 [submodule "emacsql"]
-	path = lib/emacsql
-	url = git@github.com:skeeto/emacsql.git
-	no-byte-compile = emacsql-pg.el
+    path = lib/emacsql
+    url = git@github.com:skeeto/emacsql.git
+    no-byte-compile = emacsql-pg.el
 [submodule "emmet-mode"]
-	path = lib/emmet-mode
-	url = https://github.com/smihica/emmet-mode
+    path = lib/emmet-mode
+    url = https://github.com/smihica/emmet-mode
 [submodule "epkg"]
-	path = lib/epkg
-	url = git@github.com:emacscollective/epkg.git
+    path = lib/epkg
+    url = git@github.com:emacscollective/epkg.git
 [submodule "evil"]
-	path = lib/evil
-	url = https://github.com/emacs-evil/evil
+    path = lib/evil
+    url = https://github.com/emacs-evil/evil
 [submodule "evil-snipe"]
-	path = lib/evil-snipe
-	url = https://github.com/hlissner/evil-snipe
+    path = lib/evil-snipe
+    url = https://github.com/hlissner/evil-snipe
 [submodule "evil-surround"]
-	path = lib/evil-surround
-	url = https://github.com/emacs-evil/evil-surround
+    path = lib/evil-surround
+    url = https://github.com/emacs-evil/evil-surround
 [submodule "evil-visualstar"]
-	path = lib/evil-visualstar
-	url = https://github.com/bling/evil-visualstar
+    path = lib/evil-visualstar
+    url = https://github.com/bling/evil-visualstar
+[submodule "exec-path-from-shell"]
+    path = lib/exec-path-from-shell
+    url = https://github.com/purcell/exec-path-from-shell
 [submodule "f"]
-	path = lib/f
-	url = https://github.com/rejeep/f.el
+    path = lib/f
+    url = https://github.com/rejeep/f.el
 [submodule "flycheck"]
-	path = lib/flycheck
-	url = https://github.com/flycheck/flycheck
+    path = lib/flycheck
+    url = https://github.com/flycheck/flycheck
 [submodule "frame-local"]
-	path = lib/frame-local
-	url = https://github.com/sebastiencs/frame-local
+    path = lib/frame-local
+    url = https://github.com/sebastiencs/frame-local
 [submodule "geiser"]
-	path = lib/geiser
-	url = https://gitlab.com/emacs-geiser/geiser
+    path = lib/geiser
+    url = https://gitlab.com/emacs-geiser/geiser
 [submodule "geiser-guile"]
-	path = lib/geiser-guile
-	url = https://gitlab.com/emacs-geiser/guile
+    path = lib/geiser-guile
+    url = https://gitlab.com/emacs-geiser/guile
 [submodule "general"]
-	path = lib/general
-	url = https://github.com/noctuid/general.el
+    path = lib/general
+    url = https://github.com/noctuid/general.el
 [submodule "go-errcheck"]
-	path = lib/go-errcheck
-	url = https://github.com/dominikh/go-errcheck.el
+    path = lib/go-errcheck
+    url = https://github.com/dominikh/go-errcheck.el
 [submodule "go-mode"]
-	path = lib/go-mode
-	url = https://github.com/dominikh/go-mode.el
+    path = lib/go-mode
+    url = https://github.com/dominikh/go-mode.el
 [submodule "good-scroll"]
-	path = lib/good-scroll
-	url = https://github.com/io12/good-scroll.el
+    path = lib/good-scroll
+    url = https://github.com/io12/good-scroll.el
 [submodule "gptel"]
-	path = lib/gptel
-	url = https://github.com/karthink/gptel
+    path = lib/gptel
+    url = https://github.com/karthink/gptel
 [submodule "haskell-mode"]
-	path = lib/haskell-mode
-	url = https://github.com/haskell/haskell-mode
+    path = lib/haskell-mode
+    url = https://github.com/haskell/haskell-mode
 [submodule "helpful"]
-	path = lib/helpful
-	url = https://github.com/Wilfred/helpful
+    path = lib/helpful
+    url = https://github.com/Wilfred/helpful
 [submodule "highlight-symbol"]
-	path = lib/highlight-symbol
-	url = https://github.com/nschum/highlight-symbol.el
+    path = lib/highlight-symbol
+    url = https://github.com/nschum/highlight-symbol.el
 [submodule "ht"]
-	path = lib/ht
-	url = https://github.com/Wilfred/ht.el
+    path = lib/ht
+    url = https://github.com/Wilfred/ht.el
 [submodule "hydra"]
-	path = lib/hydra
-	url = https://github.com/abo-abo/hydra
+    path = lib/hydra
+    url = https://github.com/abo-abo/hydra
 [submodule "ivy"]
-	path = lib/ivy
-	url = https://github.com/abo-abo/swiper
+    path = lib/ivy
+    url = https://github.com/abo-abo/swiper
 [submodule "js2-mode"]
-	path = lib/js2-mode
-	url = https://github.com/mooz/js2-mode
+    path = lib/js2-mode
+    url = https://github.com/mooz/js2-mode
 [submodule "keyfreq"]
-	path = lib/keyfreq
-	url = https://github.com/dacap/keyfreq
+    path = lib/keyfreq
+    url = https://github.com/dacap/keyfreq
 [submodule "llama"]
-	path = lib/llama
-	url = git@github.com:tarsius/llama.git
+    path = lib/llama
+    url = git@github.com:tarsius/llama.git
 [submodule "lorem-ipsum"]
-	path = lib/lorem-ipsum
-	url = https://github.com/jschaf/emacs-lorem-ipsum
+    path = lib/lorem-ipsum
+    url = https://github.com/jschaf/emacs-lorem-ipsum
 [submodule "lsp-ivy"]
-	path = lib/lsp-ivy
-	url = https://github.com/emacs-lsp/lsp-ivy
+    path = lib/lsp-ivy
+    url = https://github.com/emacs-lsp/lsp-ivy
 [submodule "lsp-mode"]
-	path = lib/lsp-mode
-	url = https://github.com/emacs-lsp/lsp-mode
+    path = lib/lsp-mode
+    url = https://github.com/emacs-lsp/lsp-mode
         load-path = .
-	load-path = clients
+    load-path = clients
 [submodule "lsp-pyright"]
-	path = lib/lsp-pyright
-	url = https://github.com/emacs-lsp/lsp-pyright
+    path = lib/lsp-pyright
+    url = https://github.com/emacs-lsp/lsp-pyright
 [submodule "lsp-treemacs"]
-	path = lib/lsp-treemacs
-	url = https://github.com/emacs-lsp/lsp-treemacs
+    path = lib/lsp-treemacs
+    url = https://github.com/emacs-lsp/lsp-treemacs
 [submodule "lsp-ui"]
-	path = lib/lsp-ui
-	url = https://github.com/emacs-lsp/lsp-ui
+    path = lib/lsp-ui
+    url = https://github.com/emacs-lsp/lsp-ui
 [submodule "magit"]
-	path = lib/magit
-	url = https://github.com/magit/magit
+    path = lib/magit
+    url = https://github.com/magit/magit
 [submodule "marginalia"]
-	path = lib/marginalia
-	url = https://github.com/minad/marginalia
+    path = lib/marginalia
+    url = https://github.com/minad/marginalia
 [submodule "markdown-mode"]
-	path = lib/markdown-mode
-	url = https://github.com/jrblevin/markdown-mode
+    path = lib/markdown-mode
+    url = https://github.com/jrblevin/markdown-mode
 [submodule "modus-themes"]
-	path = lib/modus-themes
-	url = https://github.com/protesilaos/modus-themes
+    path = lib/modus-themes
+    url = https://github.com/protesilaos/modus-themes
 [submodule "multiple-cursors"]
-	path = lib/multiple-cursors
-	url = https://github.com/magnars/multiple-cursors.el
+    path = lib/multiple-cursors
+    url = https://github.com/magnars/multiple-cursors.el
 [submodule "mwim"]
-	path = lib/mwim
-	url = https://github.com/alezost/mwim.el
+    path = lib/mwim
+    url = https://github.com/alezost/mwim.el
 [submodule "org"]
-	path = lib/org
-	url = https://git.savannah.gnu.org/git/emacs/org-mode.git
+    path = lib/org
+    url = https://git.savannah.gnu.org/git/emacs/org-mode.git
 [submodule "org-download"]
-	path = lib/org-download
-	url = https://github.com/abo-abo/org-download
+    path = lib/org-download
+    url = https://github.com/abo-abo/org-download
 [submodule "org-modern"]
-	path = lib/org-modern
-	url = https://github.com/minad/org-modern
+    path = lib/org-modern
+    url = https://github.com/minad/org-modern
 [submodule "org-roam"]
-	path = lib/org-roam
-	url = https://github.com/org-roam/org-roam
+    path = lib/org-roam
+    url = https://github.com/org-roam/org-roam
         load-path = .
-	load-path = extensions
+    load-path = extensions
 [submodule "org-roam-ui"]
-	path = lib/org-roam-ui
-	url = https://github.com/org-roam/org-roam-ui
+    path = lib/org-roam-ui
+    url = https://github.com/org-roam/org-roam-ui
 [submodule "org-tidy"]
-	path = lib/org-tidy
-	url = https://github.com/jxq0/org-tidy
+    path = lib/org-tidy
+    url = https://github.com/jxq0/org-tidy
 [submodule "paredit"]
-	path = lib/paredit
-	url = https://mumble.net/~campbell/git/paredit.git
+    path = lib/paredit
+    url = https://mumble.net/~campbell/git/paredit.git
 [submodule "pfuture"]
-	path = lib/pfuture
-	url = https://github.com/Alexander-Miller/pfuture
+    path = lib/pfuture
+    url = https://github.com/Alexander-Miller/pfuture
 [submodule "poetry"]
-	path = lib/poetry
-	url = https://github.com/cybniv/poetry.el
+    path = lib/poetry
+    url = https://github.com/cybniv/poetry.el
 [submodule "projectile"]
-	path = lib/projectile
-	url = https://github.com/bbatsov/projectile
+    path = lib/projectile
+    url = https://github.com/bbatsov/projectile
 [submodule "pyvenv"]
-	path = lib/pyvenv
-	url = https://github.com/jorgenschaefer/pyvenv
+    path = lib/pyvenv
+    url = https://github.com/jorgenschaefer/pyvenv
 [submodule "queue"]
-	path = lib/queue
-	url = https://github.com/emacsmirror/queue.git
+    path = lib/queue
+    url = https://github.com/emacsmirror/queue.git
 [submodule "rainbow-delimiters"]
-	path = lib/rainbow-delimiters
-	url = https://github.com/Fanael/rainbow-delimiters
+    path = lib/rainbow-delimiters
+    url = https://github.com/Fanael/rainbow-delimiters
 [submodule "reveal-in-osx-finder"]
-	path = lib/reveal-in-osx-finder
-	url = https://github.com/kaz-yos/reveal-in-osx-finder
+    path = lib/reveal-in-osx-finder
+    url = https://github.com/kaz-yos/reveal-in-osx-finder
 [submodule "rich-minority"]
-	path = lib/rich-minority
-	url = https://github.com/Malabarba/rich-minority
+    path = lib/rich-minority
+    url = https://github.com/Malabarba/rich-minority
 [submodule "rjsx-mode"]
-	path = lib/rjsx-mode
-	url = https://github.com/felipeochoa/rjsx-mode
+    path = lib/rjsx-mode
+    url = https://github.com/felipeochoa/rjsx-mode
 [submodule "s"]
-	path = lib/s
-	url = https://github.com/magnars/s.el
+    path = lib/s
+    url = https://github.com/magnars/s.el
 [submodule "setup"]
-	path = lib/setup
-	url = https://github.com/emacsmirror/setup.git
+    path = lib/setup
+    url = https://github.com/emacsmirror/setup.git
 [submodule "simple-httpd"]
-	path = lib/simple-httpd
-	url = https://github.com/skeeto/emacs-web-server
+    path = lib/simple-httpd
+    url = https://github.com/skeeto/emacs-web-server
 [submodule "smart-mode-line"]
-	path = lib/smart-mode-line
-	url = https://github.com/Malabarba/smart-mode-line
+    path = lib/smart-mode-line
+    url = https://github.com/Malabarba/smart-mode-line
 [submodule "spinner"]
-	path = lib/spinner
-	url = https://github.com/Malabarba/spinner.el
+    path = lib/spinner
+    url = https://github.com/Malabarba/spinner.el
 [submodule "transient"]
-	path = lib/transient
-	url = git@github.com:magit/transient.git
+    path = lib/transient
+    url = git@github.com:magit/transient.git
 [submodule "treemacs"]
-	path = lib/treemacs
-	url = https://github.com/Alexander-Miller/treemacs
+    path = lib/treemacs
+    url = https://github.com/Alexander-Miller/treemacs
         load-path = src/elisp
-	load-path = src/extra
-	no-byte-compile = src/extra/treemacs-all-the-icons.el
-	no-byte-compile = src/extra/treemacs-evil.el
-	no-byte-compile = src/extra/treemacs-persp.el
-	no-byte-compile = src/extra/treemacs-perspective.el
+    load-path = src/extra
+    no-byte-compile = src/extra/treemacs-all-the-icons.el
+    no-byte-compile = src/extra/treemacs-evil.el
+    no-byte-compile = src/extra/treemacs-persp.el
+    no-byte-compile = src/extra/treemacs-perspective.el
 [submodule "undo-tree"]
-	path = lib/undo-tree
-	url = https://gitlab.com/tsc25/undo-tree
+    path = lib/undo-tree
+    url = https://gitlab.com/tsc25/undo-tree
 [submodule "web-mode"]
-	path = lib/web-mode
-	url = https://github.com/fxbois/web-mode
+    path = lib/web-mode
+    url = https://github.com/fxbois/web-mode
 [submodule "websocket"]
-	path = lib/websocket
-	url = https://github.com/ahyatt/emacs-websocket
+    path = lib/websocket
+    url = https://github.com/ahyatt/emacs-websocket
 [submodule "which-key"]
-	path = lib/which-key
-	url = https://github.com/justbur/emacs-which-key
+    path = lib/which-key
+    url = https://github.com/justbur/emacs-which-key
 [submodule "with-editor"]
-	path = lib/with-editor
-	url = https://github.com/magit/with-editor
+    path = lib/with-editor
+    url = https://github.com/magit/with-editor
 [submodule "yaml-mode"]
-	path = lib/yaml-mode
-	url = https://github.com/yoshiki/yaml-mode
+    path = lib/yaml-mode
+    url = https://github.com/yoshiki/yaml-mode
 [submodule "yasnippet"]
-	path = lib/yasnippet
-	url = https://github.com/joaotavora/yasnippet
+    path = lib/yasnippet
+    url = https://github.com/joaotavora/yasnippet
 [submodule "yasnippet-snippets"]
-	path = lib/yasnippet-snippets
-	url = https://github.com/AndreaCrotti/yasnippet-snippets
+    path = lib/yasnippet-snippets
+    url = https://github.com/AndreaCrotti/yasnippet-snippets

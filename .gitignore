@@ -8,7 +8,6 @@ autosave
 auto-save-list
 bookmarks
 custom.el
-early-init.el
 eln-cache/
 env
 ielm-history.eld
@@ -21,6 +20,6 @@ tramp
 *.elc
 *-autoloads.el
 /epkgs
-init.el
 init-early.el
 *.elc
+site-lisp

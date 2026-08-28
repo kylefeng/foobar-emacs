@@ -1,0 +1,28 @@
+;;; init.el --- personal Emacs configuration entry point -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
+
+;; Hand-maintained module loader. Each feature area lives in its own file
+;; under lisp/ and is required here in dependency order. init-startup must
+;; come first — it defines the constants (*is-mac* etc.) and utilities
+;; (foobar/add-auto-mode, proxy helpers) that later modules reference.
+
+(add-to-list 'load-path (expand-file-name "lisp/" user-emacs-directory))
+(add-to-list 'load-path (expand-file-name "site-lisp/emacs-application-framework/" user-emacs-directory))
+
+(require 'init-startup)
+(require 'init-ui)
+(require 'init-evil)
+(require 'init-enhancement)
+(require 'init-programming)
+(require 'init-org)
+(require 'init-keybindings)
+(require 'init-hydra)
+(require 'init-misc)
+(require 'init-ai)
+(require 'init-eaf)
+
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
+;;; init.el ends here
