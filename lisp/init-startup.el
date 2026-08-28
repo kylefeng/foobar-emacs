@@ -1,6 +1,9 @@
 ;;; init-startup.el --- startup, constants, env, base settings, utils -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 (require 'benchmark-init)
+
 ;; To disable collection of benchmark data after init is done.
 (add-hook 'after-init-hook 'benchmark-init/deactivate)
 
@@ -572,6 +575,17 @@ unreadable. Returns the names of envvars that were changed."
 ;; END fork from - https://github.com/jamescherti/minimal-emacs.d/blob/main/init.el
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(add-hook 'before-save-hook 'whitespace-cleanup)
+
+(setq browse-url-browser-function 'browse-url-default-macosx-browser)
+(when *is-mac*
+  (setq browse-url-chrome-program
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
+
+;; exec-path-from-file
+(require 'exec-path-from-shell)
+(exec-path-from-shell-initialize)
+
 (require 'server)
 (unless (server-running-p)
   (server-start))
@@ -685,7 +699,12 @@ unreadable. Returns the names of envvars that were changed."
   (foobar/toggle-socks-proxy))
 
 
-(add-hook 'before-save-hook 'whitespace-cleanup)
-
+(defun foobar/open-current-file-in-chrome ()
+  "Open current file in Chrome."
+  (interactive)
+  (if (buffer-file-name)
+      (browse-url-chrome (concat "file://" buffer-file-name))
+    (message "No file for current buffer!")))
 
 (provide 'init-startup)
+;;; init-startup.el ends here

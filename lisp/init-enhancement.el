@@ -1,12 +1,6 @@
 ;;; init-enhancement.el --- completion, search, and editing enhancements -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
-
-;; exec-path-from-file
-(require 'exec-path-from-shell)
-(exec-path-from-shell-initialize)
-
-
 (require 'which-key)
 (which-key-mode)
 
@@ -125,6 +119,9 @@
 
 (require 'multiple-cursors)
 (global-set-key (kbd "C-S-<mouse-1>") 'mc/toggle-cursor-on-click)
+
+
+
 
 
 (provide 'init-enhancement)

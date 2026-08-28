@@ -8,7 +8,6 @@
 ;; (foobar/add-auto-mode, proxy helpers) that later modules reference.
 
 (add-to-list 'load-path (expand-file-name "lisp/" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name "site-lisp/emacs-application-framework/" user-emacs-directory))
 
 (require 'init-startup)
 (require 'init-ui)
@@ -20,7 +19,6 @@
 (require 'init-hydra)
 (require 'init-misc)
 (require 'init-ai)
-(require 'init-eaf)
 
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars)
