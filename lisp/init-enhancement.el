@@ -5,6 +5,9 @@
 (which-key-mode)
 
 (require 'flycheck)
+;; Inherit the session load-path so elisp files requiring borg drones (lib/)
+;; can be checked; the default bare subprocess can't resolve them.
+(setq flycheck-emacs-lisp-load-path 'inherit)
 (add-hook 'prog-mode-hook 'flycheck-mode)
 
 ;; ace-window
@@ -107,7 +110,10 @@
 (setq company-backends '(company-capf company-files company-keywords))
 (setq company-idle-delay 0.2)
 (setq company-transformers '(company-sort-by-occurrence))
-(add-hook 'after-init-hook global-company-mode)
+;; Must be quoted: the bare symbol is read as a variable (nil for globalized
+;; minor modes), which injects a literal nil into the hook and run-hooks
+;; aborts on it at startup.
+(add-hook 'after-init-hook 'global-company-mode)
 
 (require 'company-box)
 (add-hook 'company-mode-hook 'company-box-mode)

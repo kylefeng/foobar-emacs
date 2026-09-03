@@ -23,3 +23,4 @@ tramp
 init-early.el
 *.elc
 site-lisp
+projectile.cache

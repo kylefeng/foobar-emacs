@@ -41,6 +41,9 @@
 
 ;; 配置 treemacs
 (with-eval-after-load 'treemacs
+  ;; Explicit require: the mode is only reachable via treemacs's generated
+  ;; autoloads, which bare batch environments (flycheck) never load.
+  (require 'treemacs-tag-follow-mode)
   (treemacs-tag-follow-mode))
 
 ;; 全局快捷键绑定

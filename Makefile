@@ -1,5 +1,9 @@
 DRONES_DIR = $(shell git config "borg.drones-directory" || echo "lib")
 
+# Borg's init-file targets only compile files listed here; without this,
+# `make build` compiles init.el but never the lisp/ modules.
+INIT_FILES = init.el $(wildcard lisp/*.el)
+
 -include $(DRONES_DIR)/borg/borg.mk
 
 bootstrap-borg:

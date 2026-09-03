@@ -7,7 +7,11 @@
 ;; come first — it defines the constants (*is-mac* etc.) and utilities
 ;; (foobar/add-auto-mode, proxy helpers) that later modules reference.
 
-(add-to-list 'load-path (expand-file-name "lisp/" user-emacs-directory))
+;; eval-and-compile: the byte compiler evaluates `require` forms but not
+;; plain top-level forms, so batch compiles (borg's `make build`, flycheck)
+;; need lisp/ on load-path at compile time too.
+(eval-and-compile
+  (add-to-list 'load-path (expand-file-name "lisp/" user-emacs-directory)))
 
 (require 'init-startup)
 (require 'init-ui)
