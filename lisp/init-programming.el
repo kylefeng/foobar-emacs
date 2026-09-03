@@ -28,6 +28,13 @@
 
 (require 'projectile)
 
+;; Borg drones are 86 git submodules, and alien indexing shells out to
+;; `git ls-files' + `git submodule foreach' inside each drone on EVERY
+;; project switch (~11s of synchronous `shell-command' calls, UI frozen).
+;; We never want lib/ files indexed anyway (.projectile's `-/lib/' is
+;; silently ignored by alien mode), so disable submodule listing entirely.
+(setq projectile-git-submodule-command nil)
+
 (setq projectile-mode-line "Projectile")
 (setq projectile-track-known-projects-automatically nil)
 (setq projectile-comletion-system 'ivy)
