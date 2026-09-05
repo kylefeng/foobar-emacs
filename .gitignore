@@ -17,10 +17,8 @@ projects
 tramp
 /transient
 *~undo-tree~
-*.elc
 *-autoloads.el
 /epkgs
-init-early.el
 *.elc
 site-lisp
 projectile.cache

@@ -1,4 +1,6 @@
-;;; early-init.el --- early initialization, loaded before init.el -*- lexical-binding: t; -*-
+;;; early-init.el --- early initialization, loaded before init.el -*- no-byte-compile: t; lexical-binding: t; -*-
+;;; Commentary:
+;;; Code:
 
 ;; Adjust garbage collection thresholds during startup, and thereafter
 (setq gc-cons-threshold most-positive-fixnum)
@@ -63,3 +65,4 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load-file custom-file))
+;;; early-init.el ends here
