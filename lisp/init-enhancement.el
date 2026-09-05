@@ -110,6 +110,9 @@
 (setq company-backends '(company-capf company-files company-keywords))
 (setq company-idle-delay 0.2)
 (setq company-transformers '(company-sort-by-occurrence))
+;; Upstream deprecation nag: C-h in the popup warns and pushes M-h/M-g.
+;; Keep doc-on-C-h, just without the warning.
+(define-key company-active-map (kbd "C-h") #'company-show-doc-buffer)
 ;; Must be quoted: the bare symbol is read as a variable (nil for globalized
 ;; minor modes), which injects a literal nil into the hook and run-hooks
 ;; aborts on it at startup.
