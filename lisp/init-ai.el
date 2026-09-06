@@ -6,8 +6,8 @@
 (require 'gptel)
 
 (setup gptel
-  (:option
-   gptel-model "gpt-4o"
+  (setopt
+   gptel-model 'gpt-5.3
    gptel-backend (gptel-make-openai "Monica"
                   :host "openapi.monica.im"
                   :protocol "https"

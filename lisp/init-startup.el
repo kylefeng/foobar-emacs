@@ -706,5 +706,26 @@ unreadable. Returns the names of envvars that were changed."
       (browse-url-chrome (concat "file://" buffer-file-name))
     (message "No file for current buffer!")))
 
+
+(require 'setup)
+(setup-define :autoload
+  (lambda (func)
+    (let ((fn (if (memq (car-safe func) '(quote function))
+                  (cadr func)
+                func)))
+      `(unless (fboundp (quote ,fn))
+         (autoload (function ,fn) ,(symbol-name (setup-get 'feature)) nil t))))
+  :documentation "Autoload COMMAND if not already bound."
+  :repeatable t
+  :signature '(FUNC ...))
+
+(setup-define :load-after
+    (lambda (&rest features)
+      (let ((body `(require ',(setup-get 'feature))))
+        (dolist (feature (nreverse features))
+          (setq body `(with-eval-after-load ',feature ,body)))
+        body))
+    :documentation "Load the current feature after FEATURES.")
+
 (provide 'init-startup)
 ;;; init-startup.el ends here
